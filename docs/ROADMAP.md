@@ -24,8 +24,8 @@ Tick items off as they're done. One milestone per working session.
 - [x] Token route checks auth or slug and sets the role
 
 ## M5: Shared text pad
-- [ ] LiveKit data-channel transport + message types
-- [ ] Tiptap + Yjs text pad, synced, with sync on join
+- [x] LiveKit data-stream transport (`lib/sync/transport.ts`)
+- [x] Tiptap + Yjs text pad, synced, with sync on join (`useYjsSync`)
 
 ## M6: Whiteboard
 - [ ] Excalidraw tab synced over the data channel
