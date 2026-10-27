@@ -106,3 +106,22 @@ body {
   color: #fff;
   background: rgb(46 38 32 / 0.7);
 }
+
+/* Whiteboard (Excalidraw). Its CSS is unlayered, so these rules go through `.whiteboard`.
+   No library (book) button: lessons don't use Excalidraw's shape library. */
+.whiteboard .excalidraw .sidebar-trigger__label-element {
+  display: none;
+}
+/* Below 440px the compact tool row (405px) is cut off, so the buttons get smaller.
+   Measured: this fits down to 330px; the board panel's minimum width keeps it there. */
+.whiteboard {
+  container-type: inline-size;
+}
+@container (max-width: 440px) {
+  .whiteboard .excalidraw {
+    --default-button-size: 1.75rem;
+    --lg-button-size: 1.75rem;
+    --default-icon-size: 0.875rem;
+    --lg-icon-size: 0.875rem;
+  }
+}

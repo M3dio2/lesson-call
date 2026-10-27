@@ -1,7 +1,7 @@
 "use client";
 
 import "@excalidraw/excalidraw/index.css";
-import { CaptureUpdateAction, Excalidraw, reconcileElements } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, Excalidraw, MainMenu, reconcileElements } from "@excalidraw/excalidraw";
 import type { OrderedExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { RemoteExcalidrawElement } from "@excalidraw/excalidraw/data/reconcile";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
@@ -26,6 +26,7 @@ export default function Whiteboard({ doc, editable }: { doc: Y.Doc; editable: bo
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const pending = useRef<readonly OrderedExcalidrawElement[] | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const container = useRef<HTMLDivElement>(null);
 
   // Merge remote changes into the scene (Excalidraw's own collaboration merge),
   // without adding them to the local undo history.
@@ -54,6 +55,16 @@ export default function Whiteboard({ doc, editable }: { doc: Y.Doc; editable: bo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [board]);
 
+  // Excalidraw only notices window resizes. Dragging a panel divider changes its size too,
+  // and without a refresh the canvas keeps its old size and clicks land in the wrong place.
+  useEffect(() => {
+    const element = container.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() => apiRef.current?.refresh());
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
   // onChange fires on every pointer move; write changed elements at most every 50 ms.
   const flush = () => {
     timer.current = null;
@@ -71,7 +82,8 @@ export default function Whiteboard({ doc, editable }: { doc: Y.Doc; editable: bo
   };
 
   return (
-    <div className="h-full w-full">
+    // `whiteboard` hooks up the narrow-panel rules in app/globals.css.
+    <div ref={container} className="whiteboard h-full w-full">
       <Excalidraw
         excalidrawAPI={(api) => {
           apiRef.current = api;
@@ -89,7 +101,13 @@ export default function Whiteboard({ doc, editable }: { doc: Y.Doc; editable: bo
           tools: { image: false },
           canvasActions: { loadScene: false, saveToActiveFile: false, export: false },
         }}
-      />
+      >
+        {/* Only what's useful in a lesson: no help, links, socials, theme or local "reset"
+            (the board header has a shared Clear). */}
+        <MainMenu>
+          <MainMenu.DefaultItems.SaveAsImage />
+        </MainMenu>
+      </Excalidraw>
     </div>
   );
 }

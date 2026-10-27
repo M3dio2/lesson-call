@@ -181,7 +181,8 @@ function LessonLayout({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unkno
             {isSharing ? <ScreenStage screen={screen} /> : <CameraStage />}
           </Panel>
           <ResizeHandle orientation="vertical-line" />
-          <Panel id="board" minSize="25%">
+          {/* 340px: narrower, and the whiteboard's tool row no longer fits (app/globals.css). */}
+          <Panel id="board" minSize="340px">
             <BoardPanel doc={doc} control={control} role={role} />
           </Panel>
         </Group>

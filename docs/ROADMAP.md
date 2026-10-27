@@ -86,8 +86,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] The dropped tab shows "You joined this lesson in another tab." (`DisconnectReason.DUPLICATE_IDENTITY`) instead of rejoining
 
 ### F4: Whiteboard fixes
-- [ ] Excalidraw redraws when its panel is resized (`ResizeObserver` → `api.refresh()`)
-- [ ] Custom, slimmer main menu (Excalidraw's `<MainMenu>` with only the useful items; no help, links or socials)
+- [x] Excalidraw redraws when its panel is resized (`ResizeObserver` → `api.refresh()`)
+- [x] Custom, slimmer main menu (Excalidraw's `<MainMenu>` with only the useful items; no help, links or socials)
+- [x] No library (book) button; tool buttons shrink below 440px board width; board panel at least 340px wide
 
 ### F5: Teacher's name
 - [ ] Teacher's display name stored in Supabase user metadata (no migration)
