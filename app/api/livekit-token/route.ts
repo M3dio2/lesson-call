@@ -23,8 +23,11 @@ export async function POST(request: Request) {
 
   if (typeof body.lessonId === "string") {
     const supabase = await createClient();
-    const { data: claims } = await supabase.auth.getClaims();
-    if (!claims?.claims) {
+    // getUser (not getClaims): the name may have changed since the session's token was issued.
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
       return Response.json({ error: "Please log in" }, { status: 401 });
     }
     const { data: lesson } = await supabase
@@ -42,8 +45,8 @@ export async function POST(request: Request) {
       .from("lessons")
       .update({ last_active_at: new Date().toISOString() })
       .eq("id", lessonId);
-    name = "Teacher";
-    identity = `teacher-${claims.claims.sub}`;
+    name = user.user_metadata.display_name || "Teacher";
+    identity = `teacher-${user.id}`;
   } else if (typeof body.slug === "string") {
     name = typeof body.name === "string" ? body.name.trim().slice(0, 40) : "";
     if (!name) {

@@ -7,7 +7,7 @@ import Field from "@/components/ui/Field";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
 import { isWithin, isoAgo } from "@/lib/time";
-import { addStudent, removeLesson, signOut, startQuickCall } from "./actions";
+import { addStudent, removeLesson, setTeacherName, signOut, startQuickCall } from "./actions";
 
 const QUICK_CALL_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 // Time for the teacher to get into a new quick call before it counts as empty.
@@ -45,6 +45,8 @@ type Lesson = {
 
 async function Lessons() {
   const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  const teacherName: string = auth.user?.user_metadata.display_name ?? "";
 
   // Quick calls nobody ended are cleaned up after 12 hours.
   await supabase
@@ -84,6 +86,7 @@ async function Lessons() {
   return (
     <>
       <AutoRefresh />
+      {!teacherName && <NameForm name="" />}
 
       <section className="flex flex-col gap-3">
         {quickCalls.map((call) => (
@@ -144,7 +147,44 @@ async function Lessons() {
           <Button variant="secondary">Add</Button>
         </form>
       </section>
+
+      {teacherName && <NameForm name={teacherName} />}
     </>
+  );
+}
+
+// The name students see in calls. Asked first thing until it's set; afterwards it sits at the
+// bottom of the page so it can be changed.
+function NameForm({ name }: { name: string }) {
+  const firstTime = !name;
+  return (
+    <section
+      className={`flex flex-col gap-2 rounded-panel p-4 ${
+        firstTime ? "border border-accent bg-surface" : "border border-line"
+      }`}
+    >
+      {firstTime && (
+        <>
+          <h1 className="text-xl font-semibold">Welcome! What should your students call you?</h1>
+          <p className="text-sm text-ink-muted">
+            This name is shown on your camera in every lesson. You can change it later.
+          </p>
+        </>
+      )}
+      {/* key: a fresh input after saving, so it shows the saved name. */}
+      <form key={name} action={setTeacherName} className="flex items-end gap-2">
+        <Field
+          label="Your name in lessons"
+          name="name"
+          defaultValue={name}
+          placeholder="e.g. Ms Smith"
+          maxLength={40}
+          required
+          className="min-w-0 flex-1"
+        />
+        <Button variant={firstTime ? "primary" : "secondary"}>Save</Button>
+      </form>
+    </section>
   );
 }
 

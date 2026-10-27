@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**F5–F6: Fixes** (teacher name, icon controls + muting), then D5 design refresh. F1–F4 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**F6: Teacher controls as icons + muting**, then D5 design refresh. F1–F5 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -47,6 +47,7 @@
   - `lessons.last_active_at` is set by the token route when the teacher joins, and by each save.
   - If it's more than 3 hours old, `app/lesson/[id]/page.tsx` starts with a clean board.
 - **Teacher account:** created by hand in the Supabase dashboard, with sign-ups disabled. There is no sign-up page.
+  - The teacher's display name lives in Supabase user metadata (`display_name`), set on the dashboard; the token route reads it with `getUser()`.
 - **Edit permission** is enforced in two places:
   - The student's editors are read-only when permission is off.
   - The teacher's client ignores student updates while permission is off.

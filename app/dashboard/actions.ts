@@ -66,6 +66,17 @@ export async function leaveQuickCall(lessonId: string) {
   revalidatePath("/dashboard");
 }
 
+// The name students see in calls (the teacher account has no sign-up page to ask for it).
+// Kept in the account's user metadata, so no table is needed.
+export async function setTeacherName(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim().slice(0, 40);
+  if (!name) return;
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ data: { display_name: name } });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard");
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

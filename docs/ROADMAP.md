@@ -91,9 +91,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] No library (book) button; tool buttons shrink below 440px board width; board panel at least 340px wide
 
 ### F5: Teacher's name
-- [ ] Teacher's display name stored in Supabase user metadata (no migration)
-- [ ] Asked on the dashboard the first time (no sign-up page exists); editable later
-- [ ] Token route uses it instead of "Teacher"
+- [x] Teacher's display name stored in Supabase user metadata (no migration)
+- [x] Asked on the dashboard the first time (no sign-up page exists); editable later
+- [x] Token route uses it instead of "Teacher"
 
 ### F6: Teacher controls as icons, in the control bar
 - [ ] Icon set: `lucide-react` (ISC licence); every icon button has a tooltip and `aria-label`
@@ -113,6 +113,12 @@ Plan first (one session, nothing built): look at the app together, agree on a di
 - [ ] Motion: page and panel transitions, button feedback, "student joined" moment (respecting `prefers-reduced-motion`)
 - [ ] Illustrations for empty states (no students yet, waiting for the student, call ended)
 - [ ] Optional: rename the Vercel project (e.g. teachingtime.vercel.app; the user does this in Vercel)
+
+## M9: More teachers
+The data is already per teacher (`lessons.teacher_id` + RLS, name in user metadata); what's missing is getting new teachers in.
+- [ ] Invite a teacher with Supabase's "Invite user" email; a "set your password" page for the link
+- [ ] "Forgot password" on the login page, with a reset page
+- [ ] Check the free tiers: LiveKit minutes are shared by all teachers; Vercel Hobby is non-commercial
 
 ## D6: Scheduling
 - [ ] Plan the next lesson per student (date and time), shown on the student card
