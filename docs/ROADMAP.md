@@ -96,12 +96,12 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Token route uses it instead of "Teacher"
 
 ### F6: Teacher controls as icons, in the control bar
-- [ ] Icon set: `lucide-react` (ISC licence); every icon button has a tooltip and `aria-label`
-- [ ] "Student can edit" becomes an icon toggle (pencil / pencil-off) in the bottom control bar, teacher only
-- [ ] "Clear" becomes a trash-can icon in the board header (same place), still with a confirmation
-- [ ] Muting (was F3): "Mute all" in the control bar; mute button when hovering the student's tile
-- [ ] Server route `/api/mute`: checks the teacher owns the lesson, then `RoomServiceClient.mutePublishedTrack`
-- [ ] The student can unmute themselves (LiveKit can't force a mic on) and sees "Your teacher muted your microphone."
+- [x] Icon set: `lucide-react` (ISC licence); every icon button has a tooltip and `aria-label`
+- [x] "Student can edit" becomes an icon toggle (pencil / pencil-off) in the bottom control bar, teacher only
+- [x] "Clear" becomes a trash-can icon in the board header (same place), still with a confirmation
+- [x] Muting (was F3): "Mute student" in the control bar (mutes everyone but the teacher); mute button when hovering the student's tile
+- [x] Server route `/api/mute`: checks the teacher owns the lesson, then `RoomServiceClient.mutePublishedTrack`
+- [x] The student can unmute themselves (LiveKit can't force a mic on) and sees "Your teacher muted your microphone."
 
 # Design refresh
 

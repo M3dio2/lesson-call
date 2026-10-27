@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**F6: Teacher controls as icons + muting**, then D5 design refresh. F1–F5 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**D5: Bring it to life** (design refresh; starts with a planning session). Fixes F1–F6 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -58,6 +58,7 @@
   - The teacher's filter drops live `update`s from the student, but always accepts full-state `diff`s, so a refreshed page can recover from the peer.
   - Dropping a Yjs update leaves later updates from that client "pending", because they depend on it. `useYjsSync` notices pending structs and asks that peer for a diff, which heals the gap. A side effect: edits made while forbidden arrive once permission is back on.
   - The read-only UI uses Tiptap's `setEditable` and Excalidraw's `viewModeEnabled`.
+- **Muting:** `/api/mute` (teacher only, checks lesson ownership) mutes microphones through LiveKit's server API and sends a server-only data message (`lib/mute.ts`) so the student sees why. LiveKit can't switch a mic back on; the student unmutes themselves.
 - **(!) nudge** (`lib/sync/useNudge.ts`): a one-off LiveKit data message (topic `nudge`), not stored in the Y.Doc, so it isn't replayed on join or refresh. The student's board switches to that tab and highlights it.
 - **"Clear"** (`lib/sync/clearLesson.ts`) marks whiteboard elements deleted with a higher version, and empties the text fragment.
 

@@ -6,7 +6,7 @@ export function roomName(lessonId: string) {
   return `lesson-${lessonId}`;
 }
 
-function roomService() {
+export function roomService() {
   const url = process.env.NEXT_PUBLIC_LIVEKIT_URL;
   if (!url) return null;
   return new RoomServiceClient(

@@ -13,7 +13,10 @@ Read this before any UI work. When a change doesn't fit these rules, discuss it 
      - danger: destructive actions or errors
      - ok: allowed or success
 3. **The teacher leads, the student follows easily.**
-   - Teacher-only controls sit together (in the board header) and are clearly labelled.
+   - Teacher-only controls sit in two fixed places, each next to what it affects:
+     - board header: (!) nudge and Clear (trash can)
+     - control bar, left of mic and camera: Mute student and "Student can edit" (pencil)
+   - Each one has a tooltip and an `aria-label`.
    - The student never has to configure anything to follow the lesson.
 4. **Everyone owns their layout.**
    - Panel sizes are personal and remembered in the browser.
@@ -25,7 +28,8 @@ Read this before any UI work. When a change doesn't fit these rules, discuss it 
    - Text contrast is at least **4.5:1** (WCAG AA). All token pairs below are checked.
    - Every interactive element has a visible focus ring (`focus-visible:ring-accent`).
    - Touch targets are at least **40 px** on phones.
-   - Use words for actions. Icons alone only for universally known ones (mic, camera, leave), or with a tooltip, as (!) has.
+   - Use words for actions. Icons alone only for universally known ones (mic, camera, leave), or with a tooltip, as (!), the pencil and the trash can have.
+   - Icons come from `lucide-react`, at 16 px.
 7. **Friendly, plain copy.**
    - Short sentences that say what happened and what to do next ("Your browser blocked the camera. Click…").
    - Don't use jargon such as "token", "track" or "sync" in the UI.
@@ -81,7 +85,7 @@ Desktop (md and up), while someone shares their screen:
 ├──────────────────────┴────────────────┤  ← drag handles (line colour,
 │  [teacher cam] [student cam]           │    accent on hover)
 └───────────────────────────────────────┘
-  mic · camera · share screen · leave
+  [Mute student] [✎] │ mic · camera · share screen · leave     ← ✎ and Mute student: teacher only
 ```
 When nobody shares, the stage shows the other person's camera large with a small self-view in
 the corner, and the camera strip is gone. Alone in the room, your own camera fills the stage:
@@ -98,10 +102,10 @@ the corner, and the camera strip is gone. Alone in the room, your own camera fil
 - The board's size never depends on the camera tiles.
 - Phone (below 768 px):
   - The screen share fills the stage, with the other person's camera overlapping it in a corner. Without a share, their camera fills the stage.
-  - There's no self-view, the board is hidden for now, and there's no Share screen button.
+  - There's no self-view (except while alone in the room, when your own camera fills the stage), the board is hidden for now, and there's no Share screen button.
 
 ## Do / don't
 - **Do** use the tokens. **Don't** write hex colours or `neutral-*`, `blue-*` and similar in components.
-- **Do** keep teacher controls in one place. **Don't** scatter toggles across the screen.
+- **Do** keep teacher controls in their two places (board header, control bar). **Don't** scatter toggles across the screen.
 - **Do** say what to do next in messages. **Don't** show raw error text.
 - **Don't** add Tailwind size or colour classes on LiveKit `.lk-*` elements. Their CSS is unlayered and wins. Use LiveKit's CSS variables or inline `style` instead.

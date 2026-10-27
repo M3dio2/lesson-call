@@ -1,7 +1,20 @@
 "use client";
 
-import { useConnectionState, useRemoteParticipants } from "@livekit/components-react";
-import { ConnectionState, MediaDeviceFailure } from "livekit-client";
+import {
+  useConnectionState,
+  useRemoteParticipants,
+  useRoomContext,
+} from "@livekit/components-react";
+import {
+  ConnectionState,
+  MediaDeviceFailure,
+  type RemoteParticipant,
+  RoomEvent,
+  Track,
+  type TrackPublication,
+} from "livekit-client";
+import { useEffect, useState } from "react";
+import { MUTED_BY_TEACHER_TOPIC } from "@/lib/mute";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import type { Role } from "./LessonRoom";
 
@@ -25,8 +38,38 @@ export function deviceProblemMessage(failure?: MediaDeviceFailure, kind?: MediaD
   }
 }
 
+// Student: true from "your teacher muted you" until the microphone is switched on again.
+function useMutedByTeacher(enabled: boolean) {
+  const room = useRoomContext();
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    // Only the server sends this (app/api/mute), so a message from a participant is ignored.
+    const onData = (
+      _payload: Uint8Array,
+      from: RemoteParticipant | undefined,
+      _kind: unknown,
+      topic?: string,
+    ) => {
+      if (topic === MUTED_BY_TEACHER_TOPIC && !from) setMuted(true);
+    };
+    const onUnmuted = (publication: TrackPublication) => {
+      if (publication.source === Track.Source.Microphone) setMuted(false);
+    };
+    room.on(RoomEvent.DataReceived, onData);
+    room.on(RoomEvent.TrackUnmuted, onUnmuted);
+    return () => {
+      room.off(RoomEvent.DataReceived, onData);
+      room.off(RoomEvent.TrackUnmuted, onUnmuted);
+    };
+  }, [room, enabled]);
+
+  return [muted, () => setMuted(false)] as const;
+}
+
 // One line above the lesson: connection problems first, then "waiting for the other person",
-// then a device problem (dismissable).
+// then a device problem (dismissable), then "your teacher muted you" (student, dismissable).
 export default function StatusBanner({
   role,
   inviteSlug,
@@ -40,6 +83,7 @@ export default function StatusBanner({
 }) {
   const connection = useConnectionState();
   const others = useRemoteParticipants();
+  const [mutedByTeacher, dismissMuted] = useMutedByTeacher(role === "student");
 
   if (
     connection === ConnectionState.Reconnecting ||
@@ -54,6 +98,13 @@ export default function StatusBanner({
     return (
       <Banner tone="error" onDismiss={onDismissProblem}>
         {problem}
+      </Banner>
+    );
+  }
+  if (mutedByTeacher) {
+    return (
+      <Banner tone="info" onDismiss={dismissMuted}>
+        Your teacher muted your microphone. Click the microphone button to speak again.
       </Banner>
     );
   }
