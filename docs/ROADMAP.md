@@ -5,8 +5,8 @@ Tick items off as they're done. One milestone per working session.
 ## M1: Scaffold
 - [x] Next.js + TypeScript + Tailwind project
 - [x] `CLAUDE.md`, `docs/ROADMAP.md`, `.env.local.example`
-- [ ] GitHub repo created and pushed
-- [ ] Vercel project linked and first deploy
+- [x] GitHub repo created and pushed (github.com/M3dio2/lesson-call)
+- [x] Vercel project linked and first deploy (lesson-call-five.vercel.app)
 
 ## M2: Video call
 - [ ] LiveKit Cloud project created; keys in `.env.local` and Vercel
