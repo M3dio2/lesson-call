@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**M6: Whiteboard.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**M7: Permissions + persistence.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -34,8 +34,12 @@
 - **Roles:** the `teacher` or `student` role is put in the LiveKit token metadata by `/api/livekit-token`.
   - Teacher: must be logged in to Supabase.
   - Student: sends the lesson's `invite_slug` plus a display name, and needs no account.
-- **Data channel messages** are JSON, typed in `lib/sync/messages.ts`, and each has a `type` field.
-  - On connect, a client sends `sync-request`. The peer replies with full state, and only incremental updates follow.
+- **Shared state** is one Yjs `Y.Doc` per join, created in `LessonContent` (`components/room/LessonRoom.tsx`). It holds:
+  - the text pad: Tiptap's default XML fragment
+  - `board`: a Y.Map of Excalidraw elements by id, merged with `reconcileElements`
+  - `control`: a Y.Map of teacher-owned settings, such as `tab` and (M7) `studentCanEdit`. Only the teacher's UI writes it.
+- **Sync:** `lib/sync/useYjsSync.ts` syncs the doc over LiveKit **data streams** (`lib/sync/transport.ts`; no size limit).
+  - When two peers see each other, they exchange state vectors and the missing updates. Late joins and refreshes recover from the peer.
 - **`cacheComponents` is on** (in `next.config.ts`). Any component that reads `cookies()`, `params` or Supabase data must sit inside `<Suspense>`, or the build fails.
   - Pattern: the page is sync; an inner async component does the read.
   - `partialPrefetching` can prerender with cookies available, so `Date.now()` (used by Supabase) still errors. `createClient()` in `lib/supabase/server.ts` therefore calls `await connection()` first.

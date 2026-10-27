@@ -33,6 +33,7 @@ export default function StudentJoin({ slug }: { slug: string }) {
     return (
       <LessonRoom
         token={token}
+        role="student"
         onLeave={() => {
           setToken(null);
           setLeft(true);
@@ -44,7 +45,9 @@ export default function StudentJoin({ slug }: { slug: string }) {
   return (
     <main className="flex min-h-dvh flex-1 items-center justify-center bg-neutral-950 p-4 text-neutral-100">
       <form onSubmit={join} className="flex w-full max-w-sm flex-col gap-3">
-        <h1 className="text-2xl font-semibold">{left ? "You left the lesson" : "Join your lesson"}</h1>
+        <h1 className="text-2xl font-semibold">
+          {left ? "You left the lesson" : "Join your lesson"}
+        </h1>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}

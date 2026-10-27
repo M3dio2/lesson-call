@@ -28,8 +28,8 @@ Tick items off as they're done. One milestone per working session.
 - [x] Tiptap + Yjs text pad, synced, with sync on join (`useYjsSync`)
 
 ## M6: Whiteboard
-- [ ] Excalidraw tab synced over the data channel
-- [ ] Stage tabs (Screen / Text / Whiteboard); student follows teacher's tab
+- [x] Excalidraw tab synced over the data channel (`board` Y.Map, copies in and out)
+- [x] Stage tabs (Screen / Text / Whiteboard); student follows teacher's tab; auto-switch to Screen on share
 
 ## M7: Permissions + persistence
 - [ ] "Student can edit" toggle (read-only plus ignoring student edits)

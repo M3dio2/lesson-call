@@ -29,5 +29,5 @@ export default function TeacherRoom({ lessonId }: { lessonId: string }) {
   if (!token) {
     return <p className="p-4 text-neutral-400">Starting lesson…</p>;
   }
-  return <LessonRoom token={token} onLeave={() => router.push("/dashboard")} />;
+  return <LessonRoom token={token} role="teacher" onLeave={() => router.push("/dashboard")} />;
 }
