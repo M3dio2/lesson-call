@@ -84,13 +84,15 @@ function Banner({
   onDismiss?: () => void;
 }) {
   const colors = {
-    info: "bg-neutral-800 text-neutral-200",
-    warning: "bg-amber-900/80 text-amber-100",
-    error: "bg-red-900/80 text-red-100",
+    info: "border-line bg-surface-2 text-ink",
+    warning: "border-warn/30 bg-warn-soft text-warn",
+    error: "border-danger/30 bg-danger-soft text-danger",
   }[tone];
 
   return (
-    <div className={`mx-2 mt-2 flex items-start gap-3 rounded-md px-3 py-2 text-sm ${colors}`}>
+    <div
+      className={`mx-2 mt-2 flex items-start gap-3 rounded-md border px-3 py-2 text-sm ${colors}`}
+    >
       <p className="flex-1 self-center">{children}</p>
       {action}
       {onDismiss && (

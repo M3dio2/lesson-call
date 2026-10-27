@@ -46,6 +46,8 @@ These are defined in `app/globals.css` (`@theme`) and used as Tailwind classes, 
 | `danger` | `#B4442F` | leave, clear, errors (white text 5.5:1) |
 | `ok` | `#52703F` | "student can edit" on, success (≥ 4.7:1) |
 | `video` | `#2E2620` | behind camera and screen video, so video looks natural |
+| `warn` / `warn-soft` | `#8A5A12` / `#FBF0DC` | "Reconnecting…" banner (text 5.2:1 on soft) |
+| `danger-soft` | `#F8E6E1` | error banner background (danger text 4.6:1) |
 
 - **Radius:**
   - `rounded-md` (6 px) for controls
@@ -54,6 +56,7 @@ These are defined in `app/globals.css` (`@theme`) and used as Tailwind classes, 
 - **Shadow:** `shadow-soft`, only for floating things such as the phone camera overlay and popovers. Panels use a `line` border instead.
 - **Font:** Geist Sans (already loaded). Body text is 16 px. The editor is 18 px (`text-lg`).
 - **Theme:** light only for now.
+- **LiveKit** controls and tiles get the palette through CSS variables and `.lesson-room`-prefixed rules at the end of `app/globals.css`. Camera tiles stay dark (`video`).
 
 ## Components (`components/ui/`)
 - **Button.** Variants:

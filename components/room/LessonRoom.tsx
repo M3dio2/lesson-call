@@ -13,7 +13,7 @@ import {
 } from "@livekit/components-react";
 import { MediaDeviceFailure, Track } from "livekit-client";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
 import * as Y from "yjs";
 import TextPad from "@/components/board/TextPad";
@@ -24,12 +24,13 @@ import StatusBanner, { deviceProblemMessage } from "./StatusBanner";
 import { fromBase64 } from "@/lib/sync/base64";
 import { clearLesson } from "@/lib/sync/clearLesson";
 import { useLessonPersistence } from "@/lib/sync/useLessonPersistence";
+import { useNudge } from "@/lib/sync/useNudge";
 import { useYjsSync } from "@/lib/sync/useYjsSync";
 import { useYMapValue } from "@/lib/sync/useYMapValue";
 
 const Whiteboard = dynamic(() => import("@/components/board/Whiteboard"), {
   ssr: false,
-  loading: () => <p className="p-4 text-neutral-400">Loading whiteboard…</p>,
+  loading: () => <p className="p-4 text-ink-muted">Loading whiteboard…</p>,
 });
 
 export type Role = "teacher" | "student";
@@ -71,7 +72,7 @@ export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
         );
       }}
       data-lk-theme="default"
-      className="flex flex-col"
+      className="lesson-room flex flex-col"
       // Inline on purpose: LiveKit's unlayered `.lk-room-container { height: 100% }` beats
       // Tailwind's h-dvh, which collapsed the stage on phones.
       style={{ height: "100dvh" }}
@@ -215,9 +216,20 @@ function ScreenStage({ screen }: { screen?: TrackReferenceOrPlaceholder }) {
 // because Excalidraw can't measure a hidden canvas.
 function BoardPanel({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>; role: Role }) {
   const [tab, setTab] = useState<BoardTab>("text");
+  const [highlight, setHighlight] = useState<BoardTab | null>(null);
+  const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studentCanEdit = useYMapValue<boolean>(control, "studentCanEdit") ?? false;
   const isTeacher = role === "teacher";
   const canEdit = isTeacher || studentCanEdit;
+
+  // Student: the teacher pressed (!) — show that tab and mark it briefly.
+  const sendNudge = useNudge(isBoardTab, (nudged) => {
+    if (isTeacher) return;
+    setTab(nudged);
+    setHighlight(nudged);
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => setHighlight(null), 1500);
+  });
 
   return (
     <UiPanel
@@ -231,9 +243,15 @@ function BoardPanel({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown
             ]}
             value={tab}
             onChange={setTab}
+            highlight={highlight}
           />
           {isTeacher ? (
-            <TeacherControls doc={doc} control={control} studentCanEdit={studentCanEdit} />
+            <TeacherControls
+              doc={doc}
+              control={control}
+              studentCanEdit={studentCanEdit}
+              onNudge={() => sendNudge(tab)}
+            />
           ) : (
             <span className="ml-auto px-2 text-xs text-ink-muted">
               {studentCanEdit ? "You can edit" : "View only"}
@@ -254,17 +272,37 @@ function BoardPanel({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown
   );
 }
 
+const isBoardTab = (tab: string): tab is BoardTab => tab === "text" || tab === "draw";
+
 function TeacherControls({
   doc,
   control,
   studentCanEdit,
+  onNudge,
 }: {
   doc: Y.Doc;
   control: Y.Map<unknown>;
   studentCanEdit: boolean;
+  onNudge: () => void;
 }) {
+  const [sent, setSent] = useState(false);
+
   return (
     <div className="ml-auto flex items-center gap-2 text-sm">
+      <Button
+        variant="secondary"
+        size="sm"
+        title="Show the student this tab"
+        aria-label="Show the student this tab"
+        onClick={() => {
+          onNudge();
+          setSent(true);
+          setTimeout(() => setSent(false), 1500);
+        }}
+        className="w-8 rounded-full font-bold"
+      >
+        {sent ? "✓" : "!"}
+      </Button>
       <label className="flex cursor-pointer items-center gap-2 text-ink">
         <input
           type="checkbox"

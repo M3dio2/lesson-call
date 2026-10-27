@@ -60,9 +60,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Remove teacher-driven tab following
 
 ## D3: Board panel + (!) nudge + room restyle
-- [ ] Board header: local Text/Draw tabs; teacher controls (!) nudge, edit toggle, Clear
-- [ ] Student's board switches on nudge, with a short highlight
-- [ ] Room (banners, control bar, tiles, toolbar) in the paper palette
+- [x] Board header: local Text/Draw tabs; teacher controls (!) nudge, edit toggle, Clear
+- [x] Student's board switches on nudge, with a short highlight
+- [x] Room (banners, control bar, tiles, toolbar) in the paper palette
 
 ## D4: Phone layout
 - [ ] Screen share fills the screen; teacher camera overlaps it; board hidden

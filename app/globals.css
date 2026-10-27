@@ -13,6 +13,9 @@
   --color-danger: #b4442f;
   --color-ok: #52703f;
   --color-video: #2e2620;
+  --color-warn: #8a5a12;
+  --color-warn-soft: #fbf0dc;
+  --color-danger-soft: #f8e6e1;
 
   --radius-panel: 10px;
   --shadow-soft: 0 6px 20px rgb(59 42 30 / 0.12);
@@ -44,4 +47,62 @@ body {
 .tiptap ol {
   list-style: decimal;
   padding-left: 1.5em;
+}
+
+/* LiveKit in the paper palette (docs/DESIGN.md). LiveKit's CSS is unlayered, so these
+   rules use the .lesson-room prefix to win on specificity. */
+.lesson-room[data-lk-theme="default"] {
+  color-scheme: light;
+  --lk-bg: var(--color-paper);
+  --lk-bg2: var(--color-surface-2);
+  --lk-bg3: var(--color-line);
+  --lk-fg: var(--color-ink);
+  --lk-border-color: var(--color-line);
+  --lk-border-radius: 6px;
+  --lk-accent-bg: var(--color-accent);
+  --lk-accent-fg: #fff;
+  --lk-danger: var(--color-danger);
+  --lk-control-fg: var(--color-ink);
+  --lk-control-bg: var(--color-surface);
+  --lk-control-hover-bg: var(--color-surface-2);
+  --lk-control-active-bg: var(--color-line);
+  --lk-control-active-hover-bg: var(--color-line);
+  --lk-font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.lesson-room .lk-control-bar {
+  border-top: 1px solid var(--color-line);
+  background: var(--color-paper);
+}
+.lesson-room .lk-button,
+.lesson-room .lk-disconnect-button {
+  border: 1px solid var(--color-line);
+}
+.lesson-room .lk-disconnect-button {
+  color: var(--color-danger);
+  background: var(--color-surface);
+}
+.lesson-room .lk-disconnect-button:hover {
+  color: #fff;
+  background: var(--color-danger);
+}
+.lesson-room .lk-device-menu {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-soft);
+}
+/* Camera tiles stay dark so video and the "camera off" placeholder look natural. */
+.lesson-room .lk-participant-tile {
+  background: var(--color-video);
+  border-radius: var(--radius-panel);
+}
+.lesson-room .lk-participant-placeholder {
+  background: var(--color-video);
+  color: var(--color-ink-muted);
+}
+.lesson-room .lk-participant-metadata-item {
+  color: #fff;
+  background: rgb(46 38 32 / 0.7);
 }

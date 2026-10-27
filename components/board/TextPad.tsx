@@ -27,7 +27,7 @@ export default function TextPad({ doc, editable }: { doc: Y.Doc; editable: boole
   }, [editor, editable]);
 
   return (
-    <div className="flex h-full w-full flex-col bg-white text-neutral-900">
+    <div className="flex h-full w-full flex-col bg-surface text-ink">
       {editor && editable && <Toolbar editor={editor} />}
       <EditorContent editor={editor} className="min-h-0 flex-1 overflow-y-auto" />
     </div>
@@ -99,14 +99,14 @@ function Toolbar({ editor }: { editor: Editor }) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-1 border-b border-neutral-200 p-2">
+    <div className="flex flex-wrap gap-1 border-b border-line px-2 py-1.5">
       {buttons.map((b) => (
         <button
           key={b.title}
           title={b.title}
           onClick={b.run}
           className={`rounded px-2.5 py-1 text-sm ${b.className ?? ""} ${
-            b.on ? "bg-neutral-900 text-white" : "hover:bg-neutral-100"
+            b.on ? "bg-accent text-white" : "text-ink-muted hover:bg-surface-2 hover:text-ink"
           }`}
         >
           {b.label}
