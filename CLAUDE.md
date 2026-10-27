@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**M8: Polish + production.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**All 8 milestones done.** The app is live at https://lesson-call-five.vercel.app. New work: add a milestone (M9+) See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.

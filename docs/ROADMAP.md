@@ -38,4 +38,4 @@ Tick items off as they're done. One milestone per working session.
 ## M8: Polish + production
 - [x] Error states: camera or mic denied, peer left, reconnecting (`StatusBanner`)
 - [x] Mobile check for the student view (fixed: LiveKit CSS collapsed the stage)
-- [ ] Production deploy + real call test from another device
+- [x] Production deploy + real call test from another device (phone on mobile data)
