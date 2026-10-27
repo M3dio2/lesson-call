@@ -76,8 +76,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] "End" also closes the LiveKit room (`RoomServiceClient.deleteRoom`). The student sees "The call has ended." (check `DisconnectReason.ROOM_DELETED` in `StudentJoin`)
 
 ### F2: Big cameras when nobody shares (desktop)
-- [ ] No screen share: the left stage shows the other person's camera large, with a small self-view in a corner. The board is on the right (about 35%, resizable). The camera strip collapses.
-- [ ] Screen share: unchanged (screen | board, camera strip below)
+- [x] No screen share: the left stage shows the other person's camera large, with a small self-view in a corner. The board is on the right (about 35%, resizable). The camera strip collapses.
+- [x] Screen share: unchanged (screen | board, camera strip below)
+- [x] Alone in the room: own camera fills the stage
 
 ### F3: Muting (teacher)
 - [ ] "Mute all" in the teacher's control bar: mutes every other participant's mic

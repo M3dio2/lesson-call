@@ -13,8 +13,8 @@ import {
 } from "@livekit/components-react";
 import { type DisconnectReason, MediaDeviceFailure, Track } from "livekit-client";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
+import { useMemo, useRef, useState } from "react";
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import * as Y from "yjs";
 import TextPad from "@/components/board/TextPad";
 import Button from "@/components/ui/Button";
@@ -149,21 +149,20 @@ function LessonContent({
   return isPhone ? <PhoneLayout /> : <LessonLayout doc={doc} control={control} role={role} />;
 }
 
-// Desktop layout (docs/DESIGN.md): screen stage | board panel, camera strip below.
-// Every divider can be dragged; sizes are remembered per browser. Only sizes the user
-// chose are saved, not the automatic collapse of the stage.
+// Desktop layout (docs/DESIGN.md): stage | board panel. While someone shares, the stage shows
+// the screen and both cameras sit in a strip below; otherwise the stage shows the other
+// person's camera large with a small self-view, and there's no strip.
+// Every divider can be dragged; sizes are remembered per browser.
 function LessonLayout({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>; role: Role }) {
   const screen = useTracks([Track.Source.ScreenShare]).at(-1);
   const isSharing = Boolean(screen);
-  const outer = useDefaultLayout({ id: "lesson-outer", onlySaveAfterUserInteractions: true });
-  const inner = useDefaultLayout({ id: "lesson-inner", onlySaveAfterUserInteractions: true });
-  const stageRef = usePanelRef();
-
-  // The screen stage only takes space while someone is sharing.
-  useEffect(() => {
-    if (isSharing) stageRef.current?.expand();
-    else stageRef.current?.collapse();
-  }, [isSharing, stageRef]);
+  const outer = useDefaultLayout({
+    id: "lesson-outer",
+    panelIds: isSharing ? ["content", "cameras"] : ["content"],
+    onlySaveAfterUserInteractions: true,
+  });
+  // v2: the stage used to collapse, so older saved layouts can have it at 0%.
+  const inner = useDefaultLayout({ id: "lesson-inner-v2", onlySaveAfterUserInteractions: true });
 
   return (
     <Group
@@ -178,15 +177,8 @@ function LessonLayout({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unkno
           defaultLayout={inner.defaultLayout}
           onLayoutChanged={inner.onLayoutChanged}
         >
-          <Panel
-            id="stage"
-            panelRef={stageRef}
-            collapsible
-            collapsedSize="0%"
-            minSize="25%"
-            defaultSize="60%"
-          >
-            <ScreenStage screen={screen} />
+          <Panel id="stage" minSize="25%" defaultSize="65%">
+            {isSharing ? <ScreenStage screen={screen} /> : <CameraStage />}
           </Panel>
           <ResizeHandle orientation="vertical-line" />
           <Panel id="board" minSize="25%">
@@ -194,10 +186,14 @@ function LessonLayout({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unkno
           </Panel>
         </Group>
       </Panel>
-      <ResizeHandle orientation="horizontal-line" />
-      <Panel id="cameras" defaultSize="22%" minSize="10%" maxSize="45%">
-        <CameraStrip />
-      </Panel>
+      {isSharing && (
+        <>
+          <ResizeHandle orientation="horizontal-line" />
+          <Panel id="cameras" defaultSize="22%" minSize="10%" maxSize="45%">
+            <CameraStrip />
+          </Panel>
+        </>
+      )}
     </Group>
   );
 }
@@ -218,13 +214,35 @@ function ResizeHandle({ orientation }: { orientation: "vertical-line" | "horizon
 function ScreenStage({ screen }: { screen?: TrackReferenceOrPlaceholder }) {
   return (
     <div className="flex h-full items-center justify-center overflow-hidden rounded-panel bg-video">
-      {screen && isTrackReference(screen) ? (
+      {screen && isTrackReference(screen) && (
         <VideoTrack
           trackRef={screen}
           style={{ width: "100%", height: "100%", objectFit: "contain" }}
         />
-      ) : (
-        <p className="p-4 text-center text-sm text-paper/70">Nobody is sharing their screen.</p>
+      )}
+    </div>
+  );
+}
+
+// Nobody shares: the other person's camera fills the stage, the own camera sits in a corner.
+// Alone in the room, the own camera fills the stage (the status banner says who we're waiting for).
+function CameraStage() {
+  const cameras = useTracks([{ source: Track.Source.Camera, withPlaceholder: true }], {
+    onlySubscribed: false,
+  });
+  const other = cameras.find((c) => !c.participant.isLocal);
+  const self = cameras.find((c) => c.participant.isLocal);
+  const main = other ?? self;
+  // Inline: LiveKit's unlayered CSS beats Tailwind sizes (docs/DESIGN.md).
+  const fill = { width: "100%", height: "100%" };
+
+  return (
+    <div className="relative flex h-full items-center justify-center overflow-hidden rounded-panel bg-video">
+      {main && <ParticipantTile trackRef={main} style={fill} />}
+      {other && self && (
+        <div className="absolute right-3 bottom-3 aspect-video w-[28%] min-w-40 overflow-hidden rounded-md shadow-soft">
+          <ParticipantTile trackRef={self} style={fill} />
+        </div>
       )}
     </div>
   );

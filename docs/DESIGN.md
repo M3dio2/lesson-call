@@ -72,18 +72,29 @@ These are defined in `app/globals.css` (`@theme`) and used as Tailwind classes, 
 - **Banner** (`components/room/StatusBanner.tsx`): info on `surface-2`, warning in amber tones, error in danger tones. Can be dismissed when the user can act on it.
 
 ## Lesson layout
-Desktop (md and up):
+Desktop (md and up), while someone shares their screen:
 ```
 ┌──────────────────────┬────────────────┐
 │  Screen stage        │ [Text][Draw] ⓘ │  ← board header: tabs left,
-│  (collapses when     │                │    teacher controls right
-│   nobody shares)     │  notes / draw  │
+│                      │                │    teacher controls right
+│                      │  notes / draw  │
 ├──────────────────────┴────────────────┤  ← drag handles (line colour,
 │  [teacher cam] [student cam]           │    accent on hover)
 └───────────────────────────────────────┘
   mic · camera · share screen · leave
 ```
-- All dividers can be dragged. Sizes are saved per browser.
+When nobody shares, the stage shows the other person's camera large with a small self-view in
+the corner, and the camera strip is gone. Alone in the room, your own camera fills the stage:
+```
+┌──────────────────────┬────────────────┐
+│  Other person's      │ [Text][Draw] ⓘ │
+│  camera              │                │
+│              ┌─────┐ │  notes / draw  │
+│              │ me  │ │                │
+│              └─────┘ │                │
+└──────────────────────┴────────────────┘
+```
+- All dividers can be dragged. Sizes are saved per browser (the camera strip height only applies while sharing).
 - The board's size never depends on the camera tiles.
 - Phone (below 768 px):
   - The screen share fills the stage, with the other person's camera overlapping it in a corner. Without a share, their camera fills the stage.
