@@ -14,8 +14,8 @@ Tick items off as they're done. One milestone per working session.
 - [x] Room page: two camera tiles, mic and camera toggles, leave button (`/room`, temporary)
 
 ## M3: Screen share layout
-- [ ] Share-screen button
-- [ ] Screen on the main stage, both cameras in the sidebar
+- [x] Share-screen button (with tab audio)
+- [x] Screen on the main stage, both cameras in the sidebar
 
 ## M4: Auth + lessons
 - [ ] Supabase project; `lessons` table + RLS migration

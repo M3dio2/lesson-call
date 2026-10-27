@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**M3: Screen share layout.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**M4: Auth + lessons.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -59,6 +59,7 @@
   2. The user tests with two browser windows (normal plus incognito acting as the student).
   3. Commit on a feature branch, then merge to `main`. Vercel deploys from `main`.
 - Then tick the milestone off in `docs/ROADMAP.md` and update "Current milestone" above.
+- Git branch switches can make a running `npm run dev` serve 404s for files that were briefly removed. Restart the dev server after committing.
 - Keep it simple: this is a small, single-teacher app. No premature abstractions.
 
 ## Known free-tier caveats
