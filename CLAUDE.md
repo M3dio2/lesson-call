@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**D2: Resizable lesson layout.** See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**D3: Board nudge + room restyle.** See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -23,7 +23,6 @@
 - `npm run dev`: dev server at http://localhost:3000
 - `npm run build`: production build. Must pass before every commit.
 - `npm run lint`: ESLint.
-- `npm install` may fail with EACCES on `~/.npm`, because some cache folders are owned by root. Until the user fixes it, add `--cache /tmp/npm-cache-lesson-call`.
 
 ## Environment
 - Variable names live in `.env.local.example`. Real values go in `.env.local` (gitignored) and in the Vercel project env settings.

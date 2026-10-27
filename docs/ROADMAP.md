@@ -55,9 +55,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] "Copy student link" in the room's waiting banner
 
 ## D2: Resizable lesson layout (desktop)
-- [ ] Screen stage | Board panel side by side; camera strip below; drag to resize
-- [ ] Screen stage collapses when nobody shares; sizes remembered per browser
-- [ ] Remove teacher-driven tab following
+- [x] Screen stage | Board panel side by side; camera strip below; drag to resize
+- [x] Screen stage collapses when nobody shares; sizes remembered per browser
+- [x] Remove teacher-driven tab following
 
 ## D3: Board panel + (!) nudge + room restyle
 - [ ] Board header: local Text/Draw tabs; teacher controls (!) nudge, edit toggle, Clear
