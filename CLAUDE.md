@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**M4: Auth + lessons.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**M5: Shared text pad.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -23,10 +23,11 @@
 - `npm run dev`: dev server at http://localhost:3000
 - `npm run build`: production build. Must pass before every commit.
 - `npm run lint`: ESLint.
+- `npm install` may fail with EACCES on `~/.npm`, because some cache folders are owned by root. Until the user fixes it, add `--cache /tmp/npm-cache-lesson-call`.
 
 ## Environment
 - Variable names live in `.env.local.example`. Real values go in `.env.local` (gitignored) and in the Vercel project env settings.
-- Secrets (`LIVEKIT_API_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`) are used **only** in server code (route handlers). Never prefix them with `NEXT_PUBLIC_`.
+- Secrets (`LIVEKIT_API_SECRET`, `SUPABASE_SECRET_KEY`) are used **only** in server code (route handlers). Never prefix them with `NEXT_PUBLIC_`.
 - Claude never asks for or handles secret values. The user pastes them in themselves.
 
 ## Architecture rules
@@ -35,6 +36,11 @@
   - Student: sends the lesson's `invite_slug` plus a display name, and needs no account.
 - **Data channel messages** are JSON, typed in `lib/sync/messages.ts`, and each has a `type` field.
   - On connect, a client sends `sync-request`. The peer replies with full state, and only incremental updates follow.
+- **`cacheComponents` is on** (in `next.config.ts`). Any component that reads `cookies()`, `params` or Supabase data must sit inside `<Suspense>`, or the build fails.
+  - Pattern: the page is sync; an inner async component does the read.
+  - `partialPrefetching` can prerender with cookies available, so `Date.now()` (used by Supabase) still errors. `createClient()` in `lib/supabase/server.ts` therefore calls `await connection()` first.
+- **Auth redirects** live in `proxy.ts` (Next 16's name for middleware).
+- **Teacher account:** created by hand in the Supabase dashboard, with sign-ups disabled. There is no sign-up page.
 - **Edit permission** is enforced in two places:
   - The student's editors are read-only when permission is off.
   - The teacher's client ignores student updates while permission is off.

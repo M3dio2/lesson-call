@@ -18,10 +18,10 @@ Tick items off as they're done. One milestone per working session.
 - [x] Screen on the main stage, both cameras in the sidebar
 
 ## M4: Auth + lessons
-- [ ] Supabase project; `lessons` table + RLS migration
-- [ ] Teacher login, dashboard, create lesson, copy invite link
-- [ ] Student join page (`/join/[slug]`, enter name)
-- [ ] Token route checks auth or slug and sets the role
+- [x] Supabase project; `lessons` table + RLS migration
+- [x] Teacher login, dashboard, create lesson, copy invite link
+- [x] Student join page (`/join/[slug]`, enter name)
+- [x] Token route checks auth or slug and sets the role
 
 ## M5: Shared text pad
 - [ ] LiveKit data-channel transport + message types
