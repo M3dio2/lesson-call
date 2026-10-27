@@ -6,23 +6,41 @@ import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Panel from "@/components/ui/Panel";
 import LessonRoom from "./LessonRoom";
+import RoomMessage from "./RoomMessage";
+
+// Why the student is out of the room: they left, the teacher ended the call (the link is gone),
+// or they opened the lesson in another tab.
+type Exit = "left" | "ended" | "replaced";
+
+// One id per browser, so joining from a second tab replaces the first (see the token route).
+function browserId() {
+  try {
+    let id = localStorage.getItem("student-id");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("student-id", id);
+    }
+    return id;
+  } catch {
+    return undefined; // storage blocked: the token route picks a random id
+  }
+}
 
 export default function StudentJoin({ slug }: { slug: string }) {
   const [name, setName] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
-  const [left, setLeft] = useState(false);
-  const [ended, setEnded] = useState(false); // the teacher ended the call; the link is gone
+  const [exit, setExit] = useState<Exit | null>(null);
 
-  async function join(e: React.FormEvent) {
-    e.preventDefault();
+  async function join(e?: React.FormEvent) {
+    e?.preventDefault();
     setJoining(true);
     setError(null);
     const res = await fetch("/api/livekit-token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug, name }),
+      body: JSON.stringify({ slug, name, clientId: browserId() }),
     });
     const data = await res.json();
     setJoining(false);
@@ -30,7 +48,7 @@ export default function StudentJoin({ slug }: { slug: string }) {
       setError(data.error ?? "Could not join");
       return;
     }
-    setLeft(false);
+    setExit(null);
     setToken(data.token);
   }
 
@@ -41,24 +59,33 @@ export default function StudentJoin({ slug }: { slug: string }) {
         role="student"
         onLeave={(reason) => {
           setToken(null);
-          setLeft(true);
-          setEnded(reason === DisconnectReason.ROOM_DELETED);
+          setExit(
+            reason === DisconnectReason.ROOM_DELETED
+              ? "ended"
+              : reason === DisconnectReason.DUPLICATE_IDENTITY
+                ? "replaced"
+                : "left",
+          );
         }}
       />
     );
   }
 
-  if (ended) {
+  if (exit === "ended") {
+    return <RoomMessage title="The call has ended.">You can close this page.</RoomMessage>;
+  }
+  if (exit === "replaced") {
     return (
-      <main className="flex min-h-dvh flex-1 items-center justify-center p-4">
-        <Panel className="w-full max-w-sm">
-          <div className="flex flex-col gap-2 p-6">
-            <p className="text-sm font-medium text-accent">Lesson Call</p>
-            <h1 className="text-2xl font-semibold">The call has ended.</h1>
-            <p className="text-ink-muted">You can close this page.</p>
-          </div>
-        </Panel>
-      </main>
+      <RoomMessage
+        title="You joined this lesson in another tab."
+        actions={
+          <Button disabled={joining} onClick={() => join()}>
+            {joining ? "Joining…" : "Continue here"}
+          </Button>
+        }
+      >
+        Close this tab, or continue here to leave the other one.
+      </RoomMessage>
     );
   }
 
@@ -69,7 +96,7 @@ export default function StudentJoin({ slug }: { slug: string }) {
           <div>
             <p className="text-sm font-medium text-accent">Lesson Call</p>
             <h1 className="text-2xl font-semibold">
-              {left ? "You left the lesson" : "Join your lesson"}
+              {exit === "left" ? "You left the lesson" : "Join your lesson"}
             </h1>
           </div>
           <Field
@@ -79,7 +106,7 @@ export default function StudentJoin({ slug }: { slug: string }) {
             autoComplete="given-name"
             required
           />
-          <Button disabled={joining}>{joining ? "Joining…" : left ? "Rejoin" : "Join"}</Button>
+          <Button disabled={joining}>{joining ? "Joining…" : exit === "left" ? "Rejoin" : "Join"}</Button>
           {error && <p className="text-sm text-danger">{error}</p>}
         </form>
       </Panel>

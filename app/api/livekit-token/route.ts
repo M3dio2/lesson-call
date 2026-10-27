@@ -5,7 +5,9 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 type Role = "teacher" | "student";
 
 // Teacher: { lessonId } plus a Supabase session; RLS makes sure the lesson is theirs.
-// Student: { slug, name } from the invite link; no account needed.
+// Student: { slug, name, clientId } from the invite link; no account needed.
+// Identities are fixed per person (teacher account, student browser), so joining again from
+// another tab makes LiveKit drop the older one (DisconnectReason.DUPLICATE_IDENTITY).
 export async function POST(request: Request) {
   const apiKey = process.env.LIVEKIT_API_KEY;
   const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
   let lessonId: string;
   let role: Role;
   let name: string;
+  let identity: string;
 
   if (typeof body.lessonId === "string") {
     const supabase = await createClient();
@@ -40,6 +43,7 @@ export async function POST(request: Request) {
       .update({ last_active_at: new Date().toISOString() })
       .eq("id", lessonId);
     name = "Teacher";
+    identity = `teacher-${claims.claims.sub}`;
   } else if (typeof body.slug === "string") {
     name = typeof body.name === "string" ? body.name.trim().slice(0, 40) : "";
     if (!name) {
@@ -55,12 +59,15 @@ export async function POST(request: Request) {
     }
     lessonId = lesson.id;
     role = "student";
+    // Prefixed, so a student can never take over the teacher's identity.
+    const clientId = /^[a-z0-9-]{8,40}$/i.test(body.clientId) ? body.clientId : crypto.randomUUID();
+    identity = `student-${clientId}`;
   } else {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
 
   const token = new AccessToken(apiKey, apiSecret, {
-    identity: `${role}-${crypto.randomUUID().slice(0, 8)}`,
+    identity,
     name,
     metadata: JSON.stringify({ role }),
     ttl: "4h",

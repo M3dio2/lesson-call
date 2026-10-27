@@ -81,9 +81,9 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Alone in the room: own camera fills the stage
 
 ### F3: One join per person
-- [ ] Teacher joins with a fixed identity (`teacher-<user id>`); LiveKit then drops the older tab
-- [ ] Student: one identity per browser and lesson (kept in `localStorage`), same effect
-- [ ] The dropped tab shows "You joined this lesson in another tab." (`DisconnectReason.DUPLICATE_IDENTITY`) instead of rejoining
+- [x] Teacher joins with a fixed identity (`teacher-<user id>`); LiveKit then drops the older tab
+- [x] Student: one identity per browser and lesson (kept in `localStorage`), same effect
+- [x] The dropped tab shows "You joined this lesson in another tab." (`DisconnectReason.DUPLICATE_IDENTITY`) instead of rejoining
 
 ### F4: Whiteboard fixes
 - [ ] Excalidraw redraws when its panel is resized (`ResizeObserver` → `api.refresh()`)
