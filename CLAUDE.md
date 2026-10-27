@@ -77,6 +77,8 @@
   3. Commit on a feature branch, then merge to `main`. Vercel deploys from `main`.
 - Then tick the milestone off in `docs/ROADMAP.md` and update "Current milestone" above.
 - Git branch switches can make a running `npm run dev` serve 404s for files that were briefly removed. Restart the dev server after committing.
+- **Automated browser tests** (Playwright) may only join the lesson titled **"Test"**, and only after asking the user. Real lessons may have the teacher live in them.
+- LiveKit's stylesheet is unlayered, so it beats Tailwind utilities on `.lk-*` elements. Use inline `style` for sizes on LiveKit components (see `LessonRoom`).
 - Keep it simple: this is a small, single-teacher app. No premature abstractions.
 
 ## Known free-tier caveats

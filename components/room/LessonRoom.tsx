@@ -10,11 +10,12 @@ import {
   useTracks,
   VideoTrack,
 } from "@livekit/components-react";
-import { RoomEvent, Track, type TrackPublication } from "livekit-client";
+import { MediaDeviceFailure, RoomEvent, Track, type TrackPublication } from "livekit-client";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import * as Y from "yjs";
 import TextPad from "@/components/board/TextPad";
+import StatusBanner, { deviceProblemMessage } from "./StatusBanner";
 import { fromBase64 } from "@/lib/sync/base64";
 import { clearLesson } from "@/lib/sync/clearLesson";
 import { useLessonPersistence } from "@/lib/sync/useLessonPersistence";
@@ -39,6 +40,8 @@ type Props = {
 };
 
 export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
+  const [problem, setProblem] = useState<string | null>(null);
+
   return (
     <LiveKitRoom
       token={token}
@@ -47,13 +50,35 @@ export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
       video
       audio
       onDisconnected={onLeave}
+      onMediaDeviceFailure={(failure, kind) => setProblem(deviceProblemMessage(failure, kind))}
+      // Camera/mic failures also arrive here (e.g. "Permission denied by system" on macOS).
+      onError={(error) => {
+        const failure = MediaDeviceFailure.getFailure(error);
+        setProblem(
+          failure
+            ? deviceProblemMessage(failure)
+            : "Something went wrong with the connection. Check your internet and reload.",
+        );
+      }}
       data-lk-theme="default"
-      className="flex h-dvh flex-col"
+      className="flex flex-col"
+      // Inline on purpose: LiveKit's unlayered `.lk-room-container { height: 100% }` beats
+      // Tailwind's h-dvh, which collapsed the stage on phones.
+      style={{ height: "100dvh" }}
     >
+      <StatusBanner role={role} problem={problem} onDismissProblem={() => setProblem(null)} />
       <LessonContent role={role} lesson={lesson} />
       <ControlBar
         variation="minimal"
         controls={{ microphone: true, camera: true, screenShare: true, chat: false, leave: true }}
+        onDeviceError={({ source, error }) =>
+          setProblem(
+            deviceProblemMessage(
+              MediaDeviceFailure.getFailure(error),
+              source === Track.Source.Microphone ? "audioinput" : "videoinput",
+            ),
+          )
+        }
       />
       <RoomAudioRenderer />
     </LiveKitRoom>
@@ -128,7 +153,7 @@ function MainStage({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-neutral-900">
-      <nav className="flex items-center gap-1 p-1">
+      <nav className="flex flex-wrap items-center gap-1 p-1">
         {tabs.map((t) => (
           <button
             key={t.id}

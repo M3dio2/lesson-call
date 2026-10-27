@@ -36,6 +36,6 @@ Tick items off as they're done. One milestone per working session.
 - [x] Lesson doc snapshot saved to Supabase (`doc_snapshot`) and restored; "Clear" button
 
 ## M8: Polish + production
-- [ ] Error states: camera or mic denied, peer left, reconnecting
-- [ ] Mobile and tablet check for the student view
+- [x] Error states: camera or mic denied, peer left, reconnecting (`StatusBanner`)
+- [x] Mobile check for the student view (fixed: LiveKit CSS collapsed the stage)
 - [ ] Production deploy + real call test from another device
