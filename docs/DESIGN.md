@@ -85,7 +85,9 @@ Desktop (md and up):
 ```
 - All dividers can be dragged. Sizes are saved per browser.
 - The board's size never depends on the camera tiles.
-- Phone: the screen share fills the stage, with the teacher's camera overlapping it in a corner. The board is hidden for now.
+- Phone (below 768 px):
+  - The screen share fills the stage, with the other person's camera overlapping it in a corner. Without a share, their camera fills the stage.
+  - There's no self-view, the board is hidden for now, and there's no Share screen button.
 
 ## Do / don't
 - **Do** use the tokens. **Don't** write hex colours or `neutral-*`, `blue-*` and similar in components.

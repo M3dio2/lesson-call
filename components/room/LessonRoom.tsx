@@ -20,6 +20,8 @@ import TextPad from "@/components/board/TextPad";
 import Button from "@/components/ui/Button";
 import UiPanel from "@/components/ui/Panel";
 import TabBar from "@/components/ui/TabBar";
+import { PHONE_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
+import PhoneLayout from "./PhoneLayout";
 import StatusBanner, { deviceProblemMessage } from "./StatusBanner";
 import { fromBase64 } from "@/lib/sync/base64";
 import { clearLesson } from "@/lib/sync/clearLesson";
@@ -52,6 +54,7 @@ type Props = {
 
 export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
   const [problem, setProblem] = useState<string | null>(null);
+  const isPhone = useMediaQuery(PHONE_QUERY);
 
   return (
     <LiveKitRoom
@@ -83,10 +86,17 @@ export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
         problem={problem}
         onDismissProblem={() => setProblem(null)}
       />
-      <LessonContent role={role} lesson={lesson} />
+      <LessonContent role={role} lesson={lesson} isPhone={isPhone} />
       <ControlBar
         variation="minimal"
-        controls={{ microphone: true, camera: true, screenShare: true, chat: false, leave: true }}
+        // Phone browsers can't share their screen.
+        controls={{
+          microphone: true,
+          camera: true,
+          screenShare: !isPhone,
+          chat: false,
+          leave: true,
+        }}
         onDeviceError={({ source, error }) =>
           setProblem(
             deviceProblemMessage(
@@ -110,7 +120,15 @@ type BoardTab = "text" | "draw";
 // It lives inside LiveKitRoom so it can sync over the room's data channel.
 // The teacher's doc starts from the saved snapshot; the student's starts empty and is filled
 // by the peer on connect.
-function LessonContent({ role, lesson }: { role: Role; lesson?: SavedLesson }) {
+function LessonContent({
+  role,
+  lesson,
+  isPhone,
+}: {
+  role: Role;
+  lesson?: SavedLesson;
+  isPhone: boolean;
+}) {
   const [doc] = useState(() => {
     const doc = new Y.Doc();
     if (lesson?.snapshot) Y.applyUpdate(doc, fromBase64(lesson.snapshot));
@@ -127,7 +145,8 @@ function LessonContent({ role, lesson }: { role: Role; lesson?: SavedLesson }) {
   );
   useLessonPersistence(doc, lesson?.saveBoard ? lesson.id : undefined);
 
-  return <LessonLayout doc={doc} control={control} role={role} />;
+  // The doc keeps syncing on phones too; only the layout differs.
+  return isPhone ? <PhoneLayout /> : <LessonLayout doc={doc} control={control} role={role} />;
 }
 
 // Desktop layout (docs/DESIGN.md): screen stage | board panel, camera strip below.

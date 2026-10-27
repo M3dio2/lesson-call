@@ -65,7 +65,8 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Room (banners, control bar, tiles, toolbar) in the paper palette
 
 ## D4: Phone layout
-- [ ] Screen share fills the screen; teacher camera overlaps it; board hidden
+- [x] Screen share fills the screen; the other person's camera overlaps it; no self-view; board hidden
+- [ ] Real phone test on the live site
 
 ## D5: Scheduling
 - [ ] Plan the next lesson per student (date and time), shown on the student card
