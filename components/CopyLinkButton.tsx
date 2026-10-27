@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 
 export default function CopyLinkButton({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -12,11 +13,8 @@ export default function CopyLinkButton({ slug }: { slug: string }) {
   }
 
   return (
-    <button
-      onClick={copy}
-      className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm hover:bg-neutral-800"
-    >
+    <Button variant="secondary" size="sm" onClick={copy}>
       {copied ? "Copied!" : "Copy student link"}
-    </button>
+    </Button>
   );
 }

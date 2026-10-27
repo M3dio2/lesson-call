@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
+import Panel from "@/components/ui/Panel";
 import LessonRoom from "./LessonRoom";
 
 export default function StudentJoin({ slug }: { slug: string }) {
@@ -43,27 +46,26 @@ export default function StudentJoin({ slug }: { slug: string }) {
   }
 
   return (
-    <main className="flex min-h-dvh flex-1 items-center justify-center bg-neutral-950 p-4 text-neutral-100">
-      <form onSubmit={join} className="flex w-full max-w-sm flex-col gap-3">
-        <h1 className="text-2xl font-semibold">
-          {left ? "You left the lesson" : "Join your lesson"}
-        </h1>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
-          autoComplete="given-name"
-          required
-          className="rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2"
-        />
-        <button
-          disabled={joining}
-          className="rounded-md bg-blue-600 px-3 py-2 font-medium disabled:opacity-50"
-        >
-          {joining ? "Joining…" : left ? "Rejoin" : "Join"}
-        </button>
-        {error && <p className="text-sm text-red-400">{error}</p>}
-      </form>
+    <main className="flex min-h-dvh flex-1 items-center justify-center p-4">
+      <Panel className="w-full max-w-sm">
+        <form onSubmit={join} className="flex flex-col gap-4 p-6">
+          <div>
+            <p className="text-sm font-medium text-accent">Lesson Call</p>
+            <h1 className="text-2xl font-semibold">
+              {left ? "You left the lesson" : "Join your lesson"}
+            </h1>
+          </div>
+          <Field
+            label="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="given-name"
+            required
+          />
+          <Button disabled={joining}>{joining ? "Joining…" : left ? "Rejoin" : "Join"}</Button>
+          {error && <p className="text-sm text-danger">{error}</p>}
+        </form>
+      </Panel>
     </main>
   );
 }

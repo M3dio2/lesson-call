@@ -25,10 +25,10 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
   }, [lessonId]);
 
   if (error) {
-    return <p className="p-4 text-red-400">{error}</p>;
+    return <p className="p-4 text-danger">{error}</p>;
   }
   if (!token) {
-    return <p className="p-4 text-neutral-400">Starting lesson…</p>;
+    return <p className="p-4 text-ink-muted">Starting lesson…</p>;
   }
   return (
     <LessonRoom

@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**All 8 milestones done.** The app is live at https://lesson-call-five.vercel.app. New work: add a milestone (M9+) See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**D2: Resizable lesson layout.** See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -68,6 +68,11 @@
 - `lib/sync/`: data-channel transport and Yjs provider
 - `lib/supabase/`: Supabase clients
 - `supabase/migrations/`: SQL. Run it manually in the Supabase SQL editor.
+
+## Design
+- **Read `docs/DESIGN.md` before any UI work.** It holds the principles, colour tokens and shared components (`components/ui/`).
+- Use token classes (`bg-paper`, `text-ink-muted`, `bg-accent`, …), never raw hex values or `neutral-*`/`blue-*`.
+- If CSS changes don't show up in `npm run dev`, Turbopack's cache is stale. Stop the server, delete `.next/dev` and restart. The browser may also need a hard reload.
 
 ## Workflow
 - One milestone per session. Start by reading `docs/ROADMAP.md`.

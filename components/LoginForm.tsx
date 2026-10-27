@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Button from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
+import Panel from "@/components/ui/Panel";
 import { createClient } from "@/lib/supabase/client";
 
 // Teacher login. There is no sign-up: the teacher account is created in the Supabase dashboard.
@@ -27,34 +30,32 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={logIn} className="flex w-full max-w-sm flex-col gap-3">
-      <h1 className="text-2xl font-semibold">Teacher login</h1>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        autoComplete="email"
-        required
-        className="rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        autoComplete="current-password"
-        required
-        className="rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2"
-      />
-      <button
-        disabled={loading}
-        className="rounded-md bg-blue-600 px-3 py-2 font-medium disabled:opacity-50"
-      >
-        {loading ? "Logging in…" : "Log in"}
-      </button>
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <p className="text-sm text-neutral-400">Students: use the invite link from your teacher.</p>
-    </form>
+    <Panel className="w-full max-w-sm">
+      <form onSubmit={logIn} className="flex flex-col gap-4 p-6">
+        <div>
+          <p className="text-sm font-medium text-accent">Lesson Call</p>
+          <h1 className="text-2xl font-semibold">Teacher login</h1>
+        </div>
+        <Field
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <Field
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+        />
+        <Button disabled={loading}>{loading ? "Logging in…" : "Log in"}</Button>
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <p className="text-sm text-ink-muted">Students: use the invite link from your teacher.</p>
+      </form>
+    </Panel>
   );
 }

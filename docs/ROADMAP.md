@@ -39,3 +39,24 @@ Tick items off as they're done. One milestone per working session.
 - [x] Error states: camera or mic denied, peer left, reconnecting (`StatusBanner`)
 - [x] Mobile check for the student view (fixed: LiveKit CSS collapsed the stage)
 - [x] Production deploy + real call test from another device (phone on mobile data)
+
+# Design milestones
+See `docs/DESIGN.md` for the principles and tokens these follow.
+
+## D1: Design system + simple pages
+- [x] `docs/DESIGN.md`: principles, tokens (contrast-checked), components, layout, do/don't
+- [x] Tokens in `app/globals.css`; shared `components/ui/` (Button, Field, Panel, TabBar)
+- [x] Login, dashboard and join pages restyled
+
+## D2: Resizable lesson layout (desktop)
+- [ ] Screen stage | Board panel side by side; camera strip below; drag to resize
+- [ ] Screen stage collapses when nobody shares; sizes remembered per browser
+- [ ] Remove teacher-driven tab following
+
+## D3: Board panel + (!) nudge + room restyle
+- [ ] Board header: local Text/Draw tabs; teacher controls (!) nudge, edit toggle, Clear
+- [ ] Student's board switches on nudge, with a short highlight
+- [ ] Room (banners, control bar, tiles, toolbar) in the paper palette
+
+## D4: Phone layout
+- [ ] Screen share fills the screen; teacher camera overlaps it; board hidden

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export default function LessonPage({ params }: PageProps<"/lesson/[id]">) {
   return (
-    <Suspense fallback={<p className="p-4 text-neutral-400">Starting lesson…</p>}>
+    <Suspense fallback={<p className="p-4 text-ink-muted">Starting lesson…</p>}>
       <Lesson params={params} />
     </Suspense>
   );

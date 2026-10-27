@@ -1,31 +1,39 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import CopyLinkButton from "@/components/CopyLinkButton";
+import Button, { buttonClass } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import { createClient } from "@/lib/supabase/server";
 import { createLesson, deleteLesson, signOut } from "./actions";
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-dvh flex-1 bg-neutral-950 p-4 text-neutral-100">
+    <main className="min-h-dvh flex-1 p-4 sm:p-8">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Your lessons</h1>
+          <div>
+            <p className="text-sm font-medium text-accent">Lesson Call</p>
+            <h1 className="text-2xl font-semibold">Your lessons</h1>
+          </div>
           <form action={signOut}>
-            <button className="text-sm text-neutral-400 hover:text-neutral-100">Log out</button>
+            <Button variant="ghost" size="sm">
+              Log out
+            </Button>
           </form>
         </header>
 
-        <form action={createLesson} className="flex gap-2">
-          <input
+        <form action={createLesson} className="flex items-end gap-2">
+          <Field
+            label="New lesson"
             name="title"
-            placeholder="Lesson name, e.g. “Anna – Tuesdays”"
+            placeholder="e.g. “Anna – Tuesdays”"
             required
-            className="min-w-0 flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2"
+            className="min-w-0 flex-1"
           />
-          <button className="rounded-md bg-blue-600 px-4 py-2 font-medium">Create</button>
+          <Button>Create</Button>
         </form>
 
-        <Suspense fallback={<p className="text-neutral-400">Loading lessons…</p>}>
+        <Suspense fallback={<p className="text-ink-muted">Loading lessons…</p>}>
           <LessonList />
         </Suspense>
       </div>
@@ -45,26 +53,23 @@ async function LessonList() {
       {lessons?.map((lesson) => (
         <li
           key={lesson.id}
-          className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 p-3"
+          className="flex flex-wrap items-center gap-2 rounded-panel border border-line bg-surface p-3"
         >
           <span className="flex-1 font-medium">{lesson.title}</span>
           <CopyLinkButton slug={lesson.invite_slug} />
-          <Link
-            href={`/lesson/${lesson.id}`}
-            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium"
-          >
+          <Link href={`/lesson/${lesson.id}`} className={buttonClass("primary", "sm")}>
             Start
           </Link>
           <form action={deleteLesson}>
             <input type="hidden" name="id" value={lesson.id} />
-            <button className="px-2 py-1.5 text-sm text-neutral-500 hover:text-red-400">
+            <Button variant="danger" size="sm">
               Delete
-            </button>
+            </Button>
           </form>
         </li>
       ))}
       {lessons?.length === 0 && (
-        <p className="text-neutral-400">
+        <p className="text-ink-muted">
           No lessons yet. Create one per student; the invite link stays the same every week.
         </p>
       )}
