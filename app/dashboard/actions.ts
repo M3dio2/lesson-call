@@ -11,7 +11,8 @@ function newSlug() {
   return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
 }
 
-export async function createLesson(formData: FormData) {
+// A regular student: fixed invite link, board kept until their next lesson.
+export async function addStudent(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim().slice(0, 80);
   if (!title) return;
 
@@ -21,7 +22,20 @@ export async function createLesson(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-export async function deleteLesson(formData: FormData) {
+// One-off call: created and opened straight away; ended from the dashboard (or after 12 h).
+export async function startQuickCall() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("lessons")
+    .insert({ title: "Quick call", kind: "quick", invite_slug: newSlug() })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  redirect(`/lesson/${data.id}`);
+}
+
+// Removes a student or ends a quick call. RLS limits this to the teacher's own rows.
+export async function removeLesson(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("lessons").delete().eq("id", String(formData.get("id")));
   revalidatePath("/dashboard");

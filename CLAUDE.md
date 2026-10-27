@@ -44,6 +44,9 @@
   - Pattern: the page is sync; an inner async component does the read.
   - `partialPrefetching` can prerender with cookies available, so `Date.now()` (used by Supabase) still errors. `createClient()` in `lib/supabase/server.ts` therefore calls `await connection()` first.
 - **Auth redirects** live in `proxy.ts` (Next 16's name for middleware).
+- **Lesson kinds:** `lessons.kind` is `student` (fixed link; board kept until the next lesson) or `quick` (one-off; not saved; deleted with "End" or after 12 hours).
+  - `lessons.last_active_at` is set by the token route when the teacher joins, and by each save.
+  - If it's more than 3 hours old, `app/lesson/[id]/page.tsx` starts with a clean board.
 - **Teacher account:** created by hand in the Supabase dashboard, with sign-ups disabled. There is no sign-up page.
 - **Edit permission** is enforced in two places:
   - The student's editors are read-only when permission is off.

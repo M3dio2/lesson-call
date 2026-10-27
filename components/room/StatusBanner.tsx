@@ -2,6 +2,7 @@
 
 import { useConnectionState, useRemoteParticipants } from "@livekit/components-react";
 import { ConnectionState, MediaDeviceFailure } from "livekit-client";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import type { Role } from "./LessonRoom";
 
 // Turns a camera/microphone failure into advice the teacher or student can act on.
@@ -28,10 +29,12 @@ export function deviceProblemMessage(failure?: MediaDeviceFailure, kind?: MediaD
 // then a device problem (dismissable).
 export default function StatusBanner({
   role,
+  inviteSlug,
   problem,
   onDismissProblem,
 }: {
   role: Role;
+  inviteSlug?: string;
   problem: string | null;
   onDismissProblem: () => void;
 }) {
@@ -56,9 +59,12 @@ export default function StatusBanner({
   }
   if (connection === ConnectionState.Connected && others.length === 0) {
     return (
-      <Banner tone="info">
+      <Banner
+        tone="info"
+        action={role === "teacher" && inviteSlug ? <CopyLinkButton slug={inviteSlug} /> : undefined}
+      >
         {role === "teacher"
-          ? "Waiting for your student to join. Send them the student link from your dashboard."
+          ? "Waiting for your student to join. Send them the student link."
           : "Waiting for your teacher to join…"}
       </Banner>
     );
@@ -69,10 +75,12 @@ export default function StatusBanner({
 function Banner({
   tone,
   children,
+  action,
   onDismiss,
 }: {
   tone: "info" | "warning" | "error";
   children: React.ReactNode;
+  action?: React.ReactNode;
   onDismiss?: () => void;
 }) {
   const colors = {
@@ -83,7 +91,8 @@ function Banner({
 
   return (
     <div className={`mx-2 mt-2 flex items-start gap-3 rounded-md px-3 py-2 text-sm ${colors}`}>
-      <p className="flex-1">{children}</p>
+      <p className="flex-1 self-center">{children}</p>
+      {action}
       {onDismiss && (
         <button onClick={onDismiss} aria-label="Dismiss" className="opacity-70 hover:opacity-100">
           ✕

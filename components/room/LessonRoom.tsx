@@ -30,7 +30,12 @@ const Whiteboard = dynamic(() => import("@/components/board/Whiteboard"), {
 export type Role = "teacher" | "student";
 
 // Teacher only: the lesson to load from and save to Supabase.
-export type SavedLesson = { id: string; snapshot: string | null };
+export type SavedLesson = {
+  id: string;
+  inviteSlug: string;
+  snapshot: string | null; // null = start with a clean board
+  saveBoard: boolean; // quick calls aren't saved
+};
 
 type Props = {
   token: string;
@@ -66,7 +71,12 @@ export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
       // Tailwind's h-dvh, which collapsed the stage on phones.
       style={{ height: "100dvh" }}
     >
-      <StatusBanner role={role} problem={problem} onDismissProblem={() => setProblem(null)} />
+      <StatusBanner
+        role={role}
+        inviteSlug={lesson?.inviteSlug}
+        problem={problem}
+        onDismissProblem={() => setProblem(null)}
+      />
       <LessonContent role={role} lesson={lesson} />
       <ControlBar
         variation="minimal"
@@ -110,7 +120,7 @@ function LessonContent({ role, lesson }: { role: Role; lesson?: SavedLesson }) {
     "lesson",
     role === "teacher" ? () => control.get("studentCanEdit") === true : undefined,
   );
-  useLessonPersistence(doc, lesson?.id);
+  useLessonPersistence(doc, lesson?.saveBoard ? lesson.id : undefined);
 
   // When anyone starts sharing their screen, the teacher's client switches everyone to it.
   useEffect(() => {

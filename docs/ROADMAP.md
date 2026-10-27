@@ -48,6 +48,12 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Tokens in `app/globals.css`; shared `components/ui/` (Button, Field, Panel, TabBar)
 - [x] Login, dashboard and join pages restyled
 
+## D1b: Dashboard redesign
+- [x] Student cards (click to open the room), "Waiting" badge via LiveKit, "Last lesson" date
+- [x] Quick call: one-off room, nothing saved, ended from the dashboard or after 12 h
+- [x] Board kept until the next lesson (fresh board after 3 h without activity)
+- [x] "Copy student link" in the room's waiting banner
+
 ## D2: Resizable lesson layout (desktop)
 - [ ] Screen stage | Board panel side by side; camera strip below; drag to resize
 - [ ] Screen stage collapses when nobody shares; sizes remembered per browser
@@ -60,3 +66,6 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 
 ## D4: Phone layout
 - [ ] Screen share fills the screen; teacher camera overlaps it; board hidden
+
+## D5: Scheduling
+- [ ] Plan the next lesson per student (date and time), shown on the student card

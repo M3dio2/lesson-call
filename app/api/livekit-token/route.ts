@@ -1,4 +1,5 @@
 import { AccessToken } from "livekit-server-sdk";
+import { roomName } from "@/lib/livekit";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
 type Role = "teacher" | "student";
@@ -33,6 +34,11 @@ export async function POST(request: Request) {
     }
     lessonId = lesson.id;
     role = "teacher";
+    // Marks the lesson as started (dashboard "Last lesson", 3-hour clean-board rule).
+    await supabase
+      .from("lessons")
+      .update({ last_active_at: new Date().toISOString() })
+      .eq("id", lessonId);
     name = "Teacher";
   } else if (typeof body.slug === "string") {
     name = typeof body.name === "string" ? body.name.trim().slice(0, 40) : "";
@@ -61,7 +67,7 @@ export async function POST(request: Request) {
   });
   token.addGrant({
     roomJoin: true,
-    room: `lesson-${lessonId}`,
+    room: roomName(lessonId),
     canPublish: true,
     canSubscribe: true,
     canPublishData: true,

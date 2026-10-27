@@ -25,7 +25,7 @@ export function useLessonPersistence(doc: Y.Doc, lessonId: string | undefined) {
       const snapshot = toBase64(Y.encodeStateAsUpdate(doc));
       supabase
         .from("lessons")
-        .update({ doc_snapshot: snapshot })
+        .update({ doc_snapshot: snapshot, last_active_at: new Date().toISOString() })
         .eq("id", lessonId)
         .then(({ error }) => {
           if (error) {
