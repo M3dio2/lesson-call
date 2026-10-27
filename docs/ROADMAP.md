@@ -9,9 +9,9 @@ Tick items off as they're done. One milestone per working session.
 - [x] Vercel project linked and first deploy (lesson-call-five.vercel.app)
 
 ## M2: Video call
-- [ ] LiveKit Cloud project created; keys in `.env.local` and Vercel
-- [ ] `/api/livekit-token` route (hard-coded room for now)
-- [ ] Room page: two camera tiles, mic and camera toggles, leave button
+- [x] LiveKit Cloud project created; keys in `.env.local` and Vercel
+- [x] `/api/livekit-token` route (hard-coded room for now)
+- [x] Room page: two camera tiles, mic and camera toggles, leave button (`/room`, temporary)
 
 ## M3: Screen share layout
 - [ ] Share-screen button
