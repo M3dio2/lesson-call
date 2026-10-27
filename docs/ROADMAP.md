@@ -80,16 +80,38 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Screen share: unchanged (screen | board, camera strip below)
 - [x] Alone in the room: own camera fills the stage
 
-### F3: Muting (teacher)
-- [ ] "Mute all" in the teacher's control bar: mutes every other participant's mic
-- [ ] Hovering the student's camera tile shows a mute button
-- [ ] Server route `/api/mute`: checks the teacher owns the lesson, then calls `RoomServiceClient.mutePublishedTrack`
+### F3: One join per person
+- [ ] Teacher joins with a fixed identity (`teacher-<user id>`); LiveKit then drops the older tab
+- [ ] Student: one identity per browser and lesson (kept in `localStorage`), same effect
+- [ ] The dropped tab shows "You joined this lesson in another tab." (`DisconnectReason.DUPLICATE_IDENTITY`) instead of rejoining
+
+### F4: Whiteboard fixes
+- [ ] Excalidraw redraws when its panel is resized (`ResizeObserver` → `api.refresh()`)
+- [ ] Custom, slimmer main menu (Excalidraw's `<MainMenu>` with only the useful items; no help, links or socials)
+
+### F5: Teacher's name
+- [ ] Teacher's display name stored in Supabase user metadata (no migration)
+- [ ] Asked on the dashboard the first time (no sign-up page exists); editable later
+- [ ] Token route uses it instead of "Teacher"
+
+### F6: Teacher controls as icons, in the control bar
+- [ ] Icon set: `lucide-react` (ISC licence); every icon button has a tooltip and `aria-label`
+- [ ] "Student can edit" becomes an icon toggle (pencil / pencil-off) in the bottom control bar, teacher only
+- [ ] "Clear" becomes a trash-can icon in the board header (same place), still with a confirmation
+- [ ] Muting (was F3): "Mute all" in the control bar; mute button when hovering the student's tile
+- [ ] Server route `/api/mute`: checks the teacher owns the lesson, then `RoomServiceClient.mutePublishedTrack`
 - [ ] The student can unmute themselves (LiveKit can't force a mic on) and sees "Your teacher muted your microphone."
 
-### F4: Rename to "TeachingTime"
-- [ ] Tab title, login (wordmark), join page and dashboard header; replace "Lesson Call" everywhere visible
-- [ ] Brown "T" tab icon (`app/icon.svg`) replacing the Next.js favicon
-- [ ] Optional: rename the Vercel project so the URL can become e.g. teachingtime.vercel.app (the user does this in Vercel)
+# Design refresh
 
-## D5: Scheduling
+## D5: Bring it to life
+Plan first (one session, nothing built): look at the app together, agree on a direction, then split it into build steps.
+- [ ] Direction: what "alive" means here: motion, illustrations, colour accents, typography, empty states. Shown as a mock-up page to compare 2–3 options
+- [ ] Rename to "TeachingTime" (was F4): wordmark, tab title, `app/icon.svg` "T" icon, every visible "Lesson Call"
+- [ ] Loading screens for entering and leaving a call
+- [ ] Motion: page and panel transitions, button feedback, "student joined" moment (respecting `prefers-reduced-motion`)
+- [ ] Illustrations for empty states (no students yet, waiting for the student, call ended)
+- [ ] Optional: rename the Vercel project (e.g. teachingtime.vercel.app; the user does this in Vercel)
+
+## D6: Scheduling
 - [ ] Plan the next lesson per student (date and time), shown on the student card

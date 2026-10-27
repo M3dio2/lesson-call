@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**F3–F4: Fixes** (muting, rename to TeachingTime). F1–F2 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**F3–F6: Fixes** (one join per person, whiteboard, teacher name, icon controls + muting), then D5 design refresh. F1–F2 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
