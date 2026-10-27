@@ -68,5 +68,27 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [x] Screen share fills the screen; the other person's camera overlaps it; no self-view; board hidden
 - [ ] Real phone test on the live site
 
+## F: Fixes (planned with the user; do these before D5)
+### F1: Only one quick call, deleted when empty
+- [ ] Hide "Start a quick call" while one exists; `startQuickCall` refuses (redirects to the existing one)
+- [ ] On teacher Leave: server action asks LiveKit (`listParticipants`); deletes the quick call if the room is empty
+- [ ] Dashboard (15 s refresh) deletes an empty quick call, with a 2-minute grace period after creation
+- [ ] "End" also closes the LiveKit room (`RoomServiceClient.deleteRoom`). The student sees "The call has ended." (check `DisconnectReason.ROOM_DELETED` in `StudentJoin`)
+
+### F2: Big cameras when nobody shares (desktop)
+- [ ] No screen share: the left stage shows the other person's camera large, with a small self-view in a corner. The board is on the right (about 35%, resizable). The camera strip collapses.
+- [ ] Screen share: unchanged (screen | board, camera strip below)
+
+### F3: Muting (teacher)
+- [ ] "Mute all" in the teacher's control bar: mutes every other participant's mic
+- [ ] Hovering the student's camera tile shows a mute button
+- [ ] Server route `/api/mute`: checks the teacher owns the lesson, then calls `RoomServiceClient.mutePublishedTrack`
+- [ ] The student can unmute themselves (LiveKit can't force a mic on) and sees "Your teacher muted your microphone."
+
+### F4: Rename to "TeachingTime"
+- [ ] Tab title, login (wordmark), join page and dashboard header; replace "Lesson Call" everywhere visible
+- [ ] Brown "T" tab icon (`app/icon.svg`) replacing the Next.js favicon
+- [ ] Optional: rename the Vercel project so the URL can become e.g. teachingtime.vercel.app (the user does this in Vercel)
+
 ## D5: Scheduling
 - [ ] Plan the next lesson per student (date and time), shown on the student card
