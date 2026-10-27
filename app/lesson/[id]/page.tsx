@@ -14,8 +14,12 @@ export default function LessonPage({ params }: PageProps<"/lesson/[id]">) {
 async function Lesson({ params }: Pick<PageProps<"/lesson/[id]">, "params">) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: lesson } = await supabase.from("lessons").select("id").eq("id", id).maybeSingle();
+  const { data: lesson } = await supabase
+    .from("lessons")
+    .select("id, doc_snapshot")
+    .eq("id", id)
+    .maybeSingle();
   if (!lesson) notFound();
 
-  return <TeacherRoom lessonId={lesson.id} />;
+  return <TeacherRoom lesson={{ id: lesson.id, snapshot: lesson.doc_snapshot }} />;
 }

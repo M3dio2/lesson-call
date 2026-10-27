@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**M7: Permissions + persistence.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+**M8: Polish + production.** See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -48,7 +48,14 @@
 - **Edit permission** is enforced in two places:
   - The student's editors are read-only when permission is off.
   - The teacher's client ignores student updates while permission is off.
-- **Snapshots:** the teacher's client saves text and board snapshots to Supabase every 30 seconds and when leaving.
+- **Snapshots:** `useLessonPersistence` (teacher only) saves the whole Y.Doc as base64 into `lessons.doc_snapshot`.
+  - It saves every 30 seconds if something changed, when the tab is hidden, and when leaving.
+  - `app/lesson/[id]/page.tsx` loads the snapshot back into the teacher's doc.
+- **Edit permission details:**
+  - The teacher's filter drops live `update`s from the student, but always accepts full-state `diff`s, so a refreshed page can recover from the peer.
+  - Dropping a Yjs update leaves later updates from that client "pending", because they depend on it. `useYjsSync` notices pending structs and asks that peer for a diff, which heals the gap. A side effect: edits made while forbidden arrive once permission is back on.
+  - The read-only UI uses Tiptap's `setEditable` and Excalidraw's `viewModeEnabled`.
+- **"Clear"** (`lib/sync/clearLesson.ts`) marks whiteboard elements deleted with a higher version, and empties the text fragment.
 
 ## Layout
 - `app/`: routes

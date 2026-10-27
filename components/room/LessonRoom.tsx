@@ -15,6 +15,9 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import * as Y from "yjs";
 import TextPad from "@/components/board/TextPad";
+import { fromBase64 } from "@/lib/sync/base64";
+import { clearLesson } from "@/lib/sync/clearLesson";
+import { useLessonPersistence } from "@/lib/sync/useLessonPersistence";
 import { useYjsSync } from "@/lib/sync/useYjsSync";
 import { useYMapValue } from "@/lib/sync/useYMapValue";
 
@@ -25,13 +28,17 @@ const Whiteboard = dynamic(() => import("@/components/board/Whiteboard"), {
 
 export type Role = "teacher" | "student";
 
+// Teacher only: the lesson to load from and save to Supabase.
+export type SavedLesson = { id: string; snapshot: string | null };
+
 type Props = {
   token: string;
   role: Role;
+  lesson?: SavedLesson;
   onLeave: () => void;
 };
 
-export default function LessonRoom({ token, role, onLeave }: Props) {
+export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
   return (
     <LiveKitRoom
       token={token}
@@ -43,7 +50,7 @@ export default function LessonRoom({ token, role, onLeave }: Props) {
       data-lk-theme="default"
       className="flex h-dvh flex-col"
     >
-      <LessonContent role={role} />
+      <LessonContent role={role} lesson={lesson} />
       <ControlBar
         variation="minimal"
         controls={{ microphone: true, camera: true, screenShare: true, chat: false, leave: true }}
@@ -58,14 +65,27 @@ type StageTab = "screen" | "text" | "board";
 // The lesson Y.Doc holds everything shared:
 // - the text pad (Tiptap's default XML fragment)
 // - "board": whiteboard elements
-// - "control": teacher-owned settings (stage tab; edit permission in M7)
+// - "control": teacher-owned settings ("tab", "studentCanEdit")
 // It lives inside LiveKitRoom so it can sync over the room's data channel.
-// A new document per join; the peer fills it in on connect (saved to Supabase in M7).
-function LessonContent({ role }: { role: Role }) {
+// The teacher's doc starts from the saved snapshot; the student's starts empty and is filled
+// by the peer on connect.
+function LessonContent({ role, lesson }: { role: Role; lesson?: SavedLesson }) {
   const room = useRoomContext();
-  const [doc] = useState(() => new Y.Doc());
+  const [doc] = useState(() => {
+    const doc = new Y.Doc();
+    if (lesson?.snapshot) Y.applyUpdate(doc, fromBase64(lesson.snapshot));
+    return doc;
+  });
   const control = useMemo(() => doc.getMap<unknown>("control"), [doc]);
-  useYjsSync(doc, "lesson");
+
+  // The teacher ignores live edits from the student while editing is off
+  // (the student's UI is read-only then; this also stops a tampered client).
+  useYjsSync(
+    doc,
+    "lesson",
+    role === "teacher" ? () => control.get("studentCanEdit") === true : undefined,
+  );
+  useLessonPersistence(doc, lesson?.id);
 
   // When anyone starts sharing their screen, the teacher's client switches everyone to it.
   useEffect(() => {
@@ -94,9 +114,11 @@ function LessonContent({ role }: { role: Role }) {
 // The whiteboard mounts only when shown, because Excalidraw can't measure a hidden canvas.
 function MainStage({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>; role: Role }) {
   const tab = useYMapValue<StageTab>(control, "tab") ?? "text";
+  const studentCanEdit = useYMapValue<boolean>(control, "studentCanEdit") ?? false;
   const screenShares = useTracks([Track.Source.ScreenShare]);
   const screen = screenShares.at(-1);
   const isTeacher = role === "teacher";
+  const canEdit = isTeacher || studentCanEdit;
 
   const tabs: { id: StageTab; label: string }[] = [
     { id: "screen", label: screen ? "Screen ●" : "Screen" },
@@ -121,9 +143,11 @@ function MainStage({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>
             {t.label}
           </button>
         ))}
-        {!isTeacher && (
+        {isTeacher ? (
+          <TeacherControls doc={doc} control={control} studentCanEdit={studentCanEdit} />
+        ) : (
           <span className="ml-auto px-2 text-xs text-neutral-500">
-            Your teacher chooses the view
+            {studentCanEdit ? "You can edit" : "View only"} · Your teacher chooses the view
           </span>
         )}
       </nav>
@@ -139,14 +163,46 @@ function MainStage({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>
         )}
       </div>
       <div className={`min-h-0 flex-1 ${tab === "text" ? "flex" : "hidden"}`}>
-        <TextPad doc={doc} />
+        <TextPad doc={doc} editable={canEdit} />
       </div>
       {tab === "board" && (
         <div className="min-h-0 flex-1 bg-white">
-          <Whiteboard doc={doc} />
+          <Whiteboard doc={doc} editable={canEdit} />
         </div>
       )}
     </main>
+  );
+}
+
+function TeacherControls({
+  doc,
+  control,
+  studentCanEdit,
+}: {
+  doc: Y.Doc;
+  control: Y.Map<unknown>;
+  studentCanEdit: boolean;
+}) {
+  return (
+    <div className="ml-auto flex items-center gap-3 px-2 text-sm">
+      <label className="flex cursor-pointer items-center gap-2 text-neutral-300">
+        <input
+          type="checkbox"
+          checked={studentCanEdit}
+          onChange={(e) => control.set("studentCanEdit", e.target.checked)}
+          className="h-4 w-4 accent-blue-600"
+        />
+        Student can edit
+      </label>
+      <button
+        onClick={() => {
+          if (confirm("Clear the text pad and whiteboard for both of you?")) clearLesson(doc);
+        }}
+        className="rounded-md px-2 py-1 text-neutral-400 hover:text-red-400"
+      >
+        Clear
+      </button>
+    </div>
   );
 }
 

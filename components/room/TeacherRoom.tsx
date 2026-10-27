@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import LessonRoom from "./LessonRoom";
+import LessonRoom, { type SavedLesson } from "./LessonRoom";
 
-export default function TeacherRoom({ lessonId }: { lessonId: string }) {
+export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
+  const lessonId = lesson.id;
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,5 +30,12 @@ export default function TeacherRoom({ lessonId }: { lessonId: string }) {
   if (!token) {
     return <p className="p-4 text-neutral-400">Starting lesson…</p>;
   }
-  return <LessonRoom token={token} role="teacher" onLeave={() => router.push("/dashboard")} />;
+  return (
+    <LessonRoom
+      token={token}
+      role="teacher"
+      lesson={lesson}
+      onLeave={() => router.push("/dashboard")}
+    />
+  );
 }

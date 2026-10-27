@@ -3,12 +3,14 @@
 import Collaboration from "@tiptap/extension-collaboration";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 import type * as Y from "yjs";
 
 // Shared rich-text pad. The Y.Doc is synced by useYjsSync in LessonRoom.
-export default function TextPad({ doc }: { doc: Y.Doc }) {
+export default function TextPad({ doc, editable }: { doc: Y.Doc; editable: boolean }) {
   const editor = useEditor({
     immediatelyRender: false,
+    editable,
     extensions: [
       // Undo/redo comes from the Collaboration extension, so only your own edits are undone.
       StarterKit.configure({ undoRedo: false }),
@@ -19,9 +21,14 @@ export default function TextPad({ doc }: { doc: Y.Doc }) {
     },
   });
 
+  // useEditor only reads `editable` once; follow the teacher's toggle afterwards.
+  useEffect(() => {
+    editor?.setEditable(editable);
+  }, [editor, editable]);
+
   return (
     <div className="flex h-full w-full flex-col bg-white text-neutral-900">
-      {editor && <Toolbar editor={editor} />}
+      {editor && editable && <Toolbar editor={editor} />}
       <EditorContent editor={editor} className="min-h-0 flex-1 overflow-y-auto" />
     </div>
   );

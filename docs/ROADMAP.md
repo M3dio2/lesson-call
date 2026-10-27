@@ -32,8 +32,8 @@ Tick items off as they're done. One milestone per working session.
 - [x] Stage tabs (Screen / Text / Whiteboard); student follows teacher's tab; auto-switch to Screen on share
 
 ## M7: Permissions + persistence
-- [ ] "Student can edit" toggle (read-only plus ignoring student edits)
-- [ ] Text and board snapshots saved to Supabase and restored on rejoin
+- [x] "Student can edit" toggle (read-only plus ignoring student edits, with pending-update resync)
+- [x] Lesson doc snapshot saved to Supabase (`doc_snapshot`) and restored; "Clear" button
 
 ## M8: Polish + production
 - [ ] Error states: camera or mic denied, peer left, reconnecting
