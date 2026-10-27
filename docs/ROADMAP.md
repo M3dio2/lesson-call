@@ -69,11 +69,11 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 - [ ] Real phone test on the live site
 
 ## F: Fixes (planned with the user; do these before D5)
-### F1: Only one quick call, deleted when empty
-- [ ] Hide "Start a quick call" while one exists; `startQuickCall` refuses (redirects to the existing one)
-- [ ] On teacher Leave: server action asks LiveKit (`listParticipants`); deletes the quick call if the room is empty
-- [ ] Dashboard (15 s refresh) deletes an empty quick call, with a 2-minute grace period after creation
-- [ ] "End" also closes the LiveKit room (`RoomServiceClient.deleteRoom`). The student sees "The call has ended." (check `DisconnectReason.ROOM_DELETED` in `StudentJoin`)
+### F1: Only one quick call, ended when the teacher leaves
+- [x] "Start a quick call" always works; it ends any existing quick call first
+- [x] Teacher's Leave (not a dropped connection) ends the quick call: row deleted, LiveKit room closed
+- [x] Dashboard (15 s refresh) deletes an empty quick call, with a 2-minute grace period after creation
+- [x] "End" also closes the LiveKit room (`RoomServiceClient.deleteRoom`). The student sees "The call has ended." (check `DisconnectReason.ROOM_DELETED` in `StudentJoin`)
 
 ### F2: Big cameras when nobody shares (desktop)
 - [ ] No screen share: the left stage shows the other person's camera large, with a small self-view in a corner. The board is on the right (about 35%, resizable). The camera strip collapses.

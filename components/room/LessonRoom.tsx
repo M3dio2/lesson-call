@@ -11,7 +11,7 @@ import {
   useTracks,
   VideoTrack,
 } from "@livekit/components-react";
-import { MediaDeviceFailure, Track } from "livekit-client";
+import { type DisconnectReason, MediaDeviceFailure, Track } from "livekit-client";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout, usePanelRef } from "react-resizable-panels";
@@ -49,7 +49,7 @@ type Props = {
   token: string;
   role: Role;
   lesson?: SavedLesson;
-  onLeave: () => void;
+  onLeave: (reason?: DisconnectReason) => void;
 };
 
 export default function LessonRoom({ token, role, lesson, onLeave }: Props) {

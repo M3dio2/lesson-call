@@ -6,10 +6,12 @@ import Button, { buttonClass } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
-import { isoAgo } from "@/lib/time";
+import { isWithin, isoAgo } from "@/lib/time";
 import { addStudent, removeLesson, signOut, startQuickCall } from "./actions";
 
 const QUICK_CALL_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+// Time for the teacher to get into a new quick call before it counts as empty.
+const QUICK_CALL_GRACE_MS = 2 * 60 * 1000;
 
 export default function DashboardPage() {
   return (
@@ -55,8 +57,27 @@ async function Lessons() {
     .from("lessons")
     .select("id, title, invite_slug, kind, last_active_at, created_at")
     .order("title");
-  const lessons = (data ?? []) as Lesson[];
-  const occupied = await occupiedLessons(lessons.map((l) => l.id));
+  let lessons = (data ?? []) as Lesson[];
+  const occupiedOrUnknown = await occupiedLessons(lessons.map((l) => l.id));
+  const occupied = occupiedOrUnknown ?? new Set<string>();
+
+  // A quick call nobody is in is over (only when LiveKit could actually be asked).
+  if (occupiedOrUnknown) {
+    const empty = lessons.filter(
+      (l) =>
+        l.kind === "quick" &&
+        !occupied.has(l.id) &&
+        !isWithin(l.created_at, QUICK_CALL_GRACE_MS),
+    );
+    if (empty.length) {
+      await supabase
+        .from("lessons")
+        .delete()
+        .in("id", empty.map((l) => l.id));
+      lessons = lessons.filter((l) => !empty.includes(l));
+    }
+  }
+
   const quickCalls = lessons.filter((l) => l.kind === "quick");
   const students = lessons.filter((l) => l.kind === "student");
 
@@ -89,10 +110,14 @@ async function Lessons() {
           </div>
         ))}
         <form action={startQuickCall}>
-          <Button className="w-full py-3 text-lg">Start a quick call</Button>
+          <Button className="w-full py-3 text-lg">
+            {quickCalls.length ? "Start a new quick call" : "Start a quick call"}
+          </Button>
         </form>
         <p className="text-center text-sm text-ink-muted">
-          A one-off call with a new student link. Nothing is saved.
+          {quickCalls.length
+            ? "Ends the call above and starts a fresh one with a new student link."
+            : "A one-off call with a new student link. Nothing is saved."}
         </p>
       </section>
 

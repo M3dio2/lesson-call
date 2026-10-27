@@ -1,5 +1,6 @@
 "use client";
 
+import { DisconnectReason } from "livekit-client";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
@@ -12,6 +13,7 @@ export default function StudentJoin({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [left, setLeft] = useState(false);
+  const [ended, setEnded] = useState(false); // the teacher ended the call; the link is gone
 
   async function join(e: React.FormEvent) {
     e.preventDefault();
@@ -37,11 +39,26 @@ export default function StudentJoin({ slug }: { slug: string }) {
       <LessonRoom
         token={token}
         role="student"
-        onLeave={() => {
+        onLeave={(reason) => {
           setToken(null);
           setLeft(true);
+          setEnded(reason === DisconnectReason.ROOM_DELETED);
         }}
       />
+    );
+  }
+
+  if (ended) {
+    return (
+      <main className="flex min-h-dvh flex-1 items-center justify-center p-4">
+        <Panel className="w-full max-w-sm">
+          <div className="flex flex-col gap-2 p-6">
+            <p className="text-sm font-medium text-accent">Lesson Call</p>
+            <h1 className="text-2xl font-semibold">The call has ended.</h1>
+            <p className="text-ink-muted">You can close this page.</p>
+          </div>
+        </Panel>
+      </main>
     );
   }
 

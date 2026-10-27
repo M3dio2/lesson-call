@@ -1,7 +1,9 @@
 "use client";
 
+import { DisconnectReason } from "livekit-client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { leaveQuickCall } from "@/app/dashboard/actions";
 import LessonRoom, { type SavedLesson } from "./LessonRoom";
 
 export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
@@ -35,7 +37,14 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
       token={token}
       role="teacher"
       lesson={lesson}
-      onLeave={() => router.push("/dashboard")}
+      onLeave={async (reason) => {
+        // Quick calls (the unsaved kind) end when the teacher clicks Leave. A dropped
+        // connection doesn't count.
+        if (!lesson.saveBoard && reason === DisconnectReason.CLIENT_INITIATED) {
+          await leaveQuickCall(lessonId).catch(() => {});
+        }
+        router.push("/dashboard");
+      }}
     />
   );
 }

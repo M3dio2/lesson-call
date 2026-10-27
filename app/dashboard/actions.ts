@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { closeRoom } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
 
 // Short, unguessable invite code for the student link.
@@ -22,9 +23,21 @@ export async function addStudent(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-// One-off call: created and opened straight away; ended from the dashboard (or after 12 h).
-export async function startQuickCall() {
+// Deletes the teacher's quick calls (all, or one) and closes their rooms.
+async function endQuickCalls(lessonId?: string) {
   const supabase = await createClient();
+  let query = supabase.from("lessons").delete().eq("kind", "quick");
+  if (lessonId) query = query.eq("id", lessonId);
+  const { data } = await query.select("id");
+  await Promise.all((data ?? []).map((row) => closeRoom(row.id)));
+}
+
+// One-off call: created and opened straight away. Ended by the teacher's Leave, "End" on the
+// dashboard, or after 12 h. Only one at a time: starting a new one ends the old one.
+export async function startQuickCall() {
+  await endQuickCalls();
+  const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("lessons")
     .insert({ title: "Quick call", kind: "quick", invite_slug: newSlug() })
@@ -34,10 +47,22 @@ export async function startQuickCall() {
   redirect(`/lesson/${data.id}`);
 }
 
-// Removes a student or ends a quick call. RLS limits this to the teacher's own rows.
+// Removes a student or ends a quick call, and closes its room so nobody is left in it.
+// RLS limits this to the teacher's own rows.
 export async function removeLesson(formData: FormData) {
   const supabase = await createClient();
-  await supabase.from("lessons").delete().eq("id", String(formData.get("id")));
+  const { data } = await supabase
+    .from("lessons")
+    .delete()
+    .eq("id", String(formData.get("id")))
+    .select("id");
+  if (data?.length) await closeRoom(data[0].id);
+  revalidatePath("/dashboard");
+}
+
+// The teacher clicked Leave in a quick call: the call is over for everyone.
+export async function leaveQuickCall(lessonId: string) {
+  await endQuickCalls(lessonId);
   revalidatePath("/dashboard");
 }
 

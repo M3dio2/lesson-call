@@ -6,17 +6,23 @@ export function roomName(lessonId: string) {
   return `lesson-${lessonId}`;
 }
 
-// Lesson ids whose room has someone in it right now. On the dashboard the teacher isn't in
-// any room, so this means "the student is waiting". Errors count as "nobody there".
-export async function occupiedLessons(lessonIds: string[]): Promise<Set<string>> {
+function roomService() {
   const url = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-  if (!url || lessonIds.length === 0) return new Set();
-
-  const client = new RoomServiceClient(
+  if (!url) return null;
+  return new RoomServiceClient(
     url.replace(/^wss:/, "https:"),
     process.env.LIVEKIT_API_KEY,
     process.env.LIVEKIT_API_SECRET,
   );
+}
+
+// Lesson ids whose room has someone in it right now. On the dashboard the teacher isn't in
+// any room, so this means "the student is waiting". null = LiveKit couldn't be asked, so
+// callers must not treat rooms as empty.
+export async function occupiedLessons(lessonIds: string[]): Promise<Set<string> | null> {
+  const client = roomService();
+  if (!client) return null;
+  if (lessonIds.length === 0) return new Set();
   try {
     const rooms = await client.listRooms(lessonIds.map(roomName));
     return new Set(
@@ -26,6 +32,13 @@ export async function occupiedLessons(lessonIds: string[]): Promise<Set<string>>
     );
   } catch (error) {
     console.error("Could not check LiveKit rooms:", error);
-    return new Set();
+    return null;
   }
+}
+
+// Ends the call for everyone still in the room. Errors (e.g. the room already closed) are ignored.
+export async function closeRoom(lessonId: string) {
+  try {
+    await roomService()?.deleteRoom(roomName(lessonId));
+  } catch {}
 }
