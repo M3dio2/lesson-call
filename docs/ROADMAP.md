@@ -105,13 +105,32 @@ See `docs/DESIGN.md` for the principles and tokens these follow.
 
 # Design refresh
 
-## D5: Bring it to life
-Plan first (one session, nothing built): look at the app together, agree on a direction, then split it into build steps.
-- [ ] Direction: what "alive" means here: motion, illustrations, colour accents, typography, empty states. Shown as a mock-up page to compare 2–3 options
-- [ ] Rename to "TeachingTime" (was F4): wordmark, tab title, `app/icon.svg` "T" icon, every visible "Lesson Call"
-- [ ] Loading screens for entering and leaving a call
-- [ ] Motion: page and panel transitions, button feedback, "student joined" moment (respecting `prefers-reduced-motion`)
-- [ ] Illustrations for empty states (no students yet, waiting for the student, call ended)
+## D5: Bring it to life ("Highlighter")
+Direction chosen with the user (mock-up: claude.ai/artifact/96VPE4fW6muQeC482KAAjt). A yellow marker used the way a teacher marks a text.
+Rules: one marker gesture per screen; draw once, then rest (only the loading line loops); yellow means "look here", never a background; motion under 1 s and off with reduced motion; during a call only the tab underline and the (!) circle move.
+
+### D5a: Name, type and marker basics
+- [ ] Rename to "TeachingTime" everywhere visible (tab title, login, dashboard, join page, room messages)
+- [ ] Tokens: `marker` (#F4D35E), `marker-soft`, `marker-ink`; display font Bricolage Grotesque for the name and headings
+- [ ] Wordmark component: dark "T" tile with yellow letter + "Teaching" underlined by a drawn marker stroke
+- [ ] `app/icon.svg` tab icon (the "T" tile) replacing the Next.js favicon
+- [ ] `Marker` component: hand-drawn SVG strokes (underline, circle, tick, wavy line) that draw themselves; reduced-motion safe
+- [ ] `docs/DESIGN.md` updated with the marker rules and tokens
+
+### D5b: Marker moments
+- [ ] Dashboard: marker circle around "Waiting"; cards lift onto a yellow hover shadow
+- [ ] Board: active Text/Draw tab gets a marker underline instead of a filled box
+- [ ] (!) nudge: the marker circles the tab on the student's board
+- [ ] Student join page: "Join your lesson" with "lesson" underlined
+
+### D5c: Entering, joining and leaving
+- [ ] Loading screen "Getting your lesson ready" with the looping marker line (entering); "Leaving the lesson" (leaving)
+- [ ] Someone joins: their camera fades in, plus a small "Anna joined" toast
+- [ ] Call ended / left: marker tick and "See you next time!"
+
+### Still to decide
+- [ ] Dark ink instead of brown for the main buttons
+- [ ] Arrow doodle pointing to "Add a student" on an empty dashboard
 - [ ] Optional: rename the Vercel project (e.g. teachingtime.vercel.app; the user does this in Vercel)
 
 ## M9: More teachers
