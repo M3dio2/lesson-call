@@ -52,15 +52,27 @@ These are defined in `app/globals.css` (`@theme`) and used as Tailwind classes, 
 | `video` | `#2E2620` | behind camera and screen video, so video looks natural |
 | `warn` / `warn-soft` | `#8A5A12` / `#FBF0DC` | "Reconnecting…" banner (text 5.2:1 on soft) |
 | `danger-soft` | `#F8E6E1` | error banner background (danger text 4.6:1) |
+| `marker` | `#F4D35E` | the marker: drawn strokes, the "T" letter on its ink tile. Never a background or text colour |
+| `marker-soft` / `marker-ink` | `#FBEDB5` / `#6B4E0E` | small highlighted labels such as the "Waiting" badge (text 6.4:1) |
 
 - **Radius:**
   - `rounded-md` (6 px) for controls
   - `rounded-panel` (10 px) for panels and cards
 - **Spacing:** Tailwind's 4 px scale. Use `gap-2` inside controls, `gap-3` or `p-3` inside panels, and `gap-2` between panels in the lesson.
 - **Shadow:** `shadow-soft`, only for floating things such as the phone camera overlay and popovers. Panels use a `line` border instead.
-- **Font:** Geist Sans (already loaded). Body text is 16 px. The editor is 18 px (`text-lg`).
+- **Font:** Geist Sans for everything people read and use. Body text is 16 px. The editor is 18 px (`text-lg`).
+  - **Display:** Bricolage Grotesque (`font-display`, extra bold) for the TeachingTime name and page headings only. Every `h1` gets it automatically; the text pad's own headings don't.
 - **Theme:** light only for now.
 - **LiveKit** controls and tiles get the palette through CSS variables and `.lesson-room`-prefixed rules at the end of `app/globals.css`. Camera tiles stay dark (`video`).
+
+## The marker ("Highlighter", D5)
+A yellow marker used the way a teacher marks a text: one stroke at the right moment, drawn by hand.
+- **One marker gesture per screen:** an underline, a circle or a tick. Never two at once, and never a yellow background.
+- **Draw once, then rest.** A stroke draws itself when something new appears, then stays still. Only the loading line loops.
+- **Yellow means "look here":** the name, a waiting student, the active board tab, a (!) nudge. Buttons and errors keep their own colours.
+- **Short motion:** under 1 s, easing out. With "reduce motion" switched on, strokes appear already drawn.
+- **During a call** only the tab underline and the (!) circle move. Nothing animates while people talk.
+- Use `components/ui/Marker.tsx` (shapes: `underline`, `circle`, `tick`, `wave`) rather than drawing new strokes.
 
 ## Components (`components/ui/`)
 - **Button.** Variants:
@@ -73,6 +85,8 @@ These are defined in `app/globals.css` (`@theme`) and used as Tailwind classes, 
 - **Field:** a labelled input on `surface`, with a line border and accent focus ring.
 - **Panel:** `surface` with a `line` border, `rounded-panel` corners and an optional header bar on `surface-2`.
 - **TabBar:** segmented tabs in a header. The active tab has an `accent` underline or fill, and the rest are `ink-muted`.
+- **Wordmark:** the dark "T" tile (same as `app/icon.svg`) and "Teaching" underlined by the marker. `draw` animates the underline; leave it off where the screen already has its own marker gesture.
+- **Marker:** a hand-drawn yellow stroke that draws itself (see "The marker" above).
 - **Banner** (`components/room/StatusBanner.tsx`): info on `surface-2`, warning in amber tones, error in danger tones. Can be dismissed when the user can act on it.
 
 ## Lesson layout

@@ -110,12 +110,12 @@ Direction chosen with the user (mock-up: claude.ai/artifact/96VPE4fW6muQeC482KAA
 Rules: one marker gesture per screen; draw once, then rest (only the loading line loops); yellow means "look here", never a background; motion under 1 s and off with reduced motion; during a call only the tab underline and the (!) circle move.
 
 ### D5a: Name, type and marker basics
-- [ ] Rename to "TeachingTime" everywhere visible (tab title, login, dashboard, join page, room messages)
-- [ ] Tokens: `marker` (#F4D35E), `marker-soft`, `marker-ink`; display font Bricolage Grotesque for the name and headings
-- [ ] Wordmark component: dark "T" tile with yellow letter + "Teaching" underlined by a drawn marker stroke
-- [ ] `app/icon.svg` tab icon (the "T" tile) replacing the Next.js favicon
-- [ ] `Marker` component: hand-drawn SVG strokes (underline, circle, tick, wavy line) that draw themselves; reduced-motion safe
-- [ ] `docs/DESIGN.md` updated with the marker rules and tokens
+- [x] Rename to "TeachingTime" everywhere visible (tab title, login, dashboard, join page, room messages)
+- [x] Tokens: `marker` (#F4D35E), `marker-soft`, `marker-ink`; display font Bricolage Grotesque for the name and headings
+- [x] Wordmark component: dark "T" tile with yellow letter + "Teaching" underlined by a drawn marker stroke
+- [x] `app/icon.svg` tab icon (the "T" tile) replacing the Next.js favicon
+- [x] `Marker` component: hand-drawn SVG strokes (underline, circle, tick, wavy line) that draw themselves; reduced-motion safe
+- [x] `docs/DESIGN.md` updated with the marker rules and tokens
 
 ### D5b: Marker moments
 - [ ] Dashboard: marker circle around "Waiting"; cards lift onto a yellow hover shadow

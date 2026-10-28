@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**D5: Bring it to life ("Highlighter")**, in steps D5a–D5c. Fixes F1–F6 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**D5: Bring it to life ("Highlighter")**, in steps D5a–D5c (D5a done). Fixes F1–F6 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.

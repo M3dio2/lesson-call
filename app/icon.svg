@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- TeachingTime: dark ink tile with a marker-yellow "T" (components/ui/Wordmark.tsx) -->
+  <rect width="32" height="32" rx="7" fill="#3B2A1E"/>
+  <rect x="8" y="8" width="16" height="4.5" rx="1.5" fill="#F4D35E"/>
+  <rect x="13.75" y="8" width="4.5" height="17" rx="1.5" fill="#F4D35E"/>
+</svg>

@@ -5,6 +5,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Panel from "@/components/ui/Panel";
+import Wordmark from "@/components/ui/Wordmark";
 import { createClient } from "@/lib/supabase/client";
 
 // Teacher login. There is no sign-up: the teacher account is created in the Supabase dashboard.
@@ -32,9 +33,9 @@ export default function LoginForm() {
   return (
     <Panel className="w-full max-w-sm">
       <form onSubmit={logIn} className="flex flex-col gap-4 p-6">
-        <div>
-          <p className="text-sm font-medium text-accent">Lesson Call</p>
-          <h1 className="text-2xl font-semibold">Teacher login</h1>
+        <div className="flex flex-col gap-3">
+          <Wordmark draw />
+          <h1 className="text-2xl">Teacher login</h1>
         </div>
         <Field
           label="Email"

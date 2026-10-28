@@ -4,6 +4,7 @@ import CopyLinkButton from "@/components/CopyLinkButton";
 import { AutoRefresh, ConfirmSubmit, LocalDate } from "@/components/dashboard/DashboardBits";
 import Button, { buttonClass } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
+import Wordmark from "@/components/ui/Wordmark";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
 import { isWithin, isoAgo } from "@/lib/time";
@@ -18,7 +19,7 @@ export default function DashboardPage() {
     <main className="flex min-h-dvh flex-1 flex-col gap-8 p-4 sm:p-8">
       {/* Full width, so "Log out" sits in the top-right corner; the content below is centred. */}
       <header className="flex items-center justify-between">
-        <p className="text-lg font-semibold text-accent">Lesson Call</p>
+        <Wordmark draw />
         <form action={signOut}>
           <Button variant="ghost" size="sm">
             Log out
@@ -126,7 +127,7 @@ async function Lessons() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h1 className="text-xl font-semibold">Your students</h1>
+        <h1 className="text-xl">Your students</h1>
         <ul className="flex flex-col gap-3">
           {students.map((student) => (
             <StudentCard key={student.id} student={student} waiting={occupied.has(student.id)} />
@@ -166,7 +167,7 @@ function NameForm({ name }: { name: string }) {
     >
       {firstTime && (
         <>
-          <h1 className="text-xl font-semibold">Welcome! What should your students call you?</h1>
+          <h1 className="text-xl">Welcome! What should your students call you?</h1>
           <p className="text-sm text-ink-muted">
             This name is shown on your camera in every lesson. You can change it later.
           </p>

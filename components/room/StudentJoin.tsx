@@ -5,6 +5,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Panel from "@/components/ui/Panel";
+import Wordmark from "@/components/ui/Wordmark";
 import LessonRoom from "./LessonRoom";
 import RoomMessage from "./RoomMessage";
 
@@ -93,9 +94,9 @@ export default function StudentJoin({ slug }: { slug: string }) {
     <main className="flex min-h-dvh flex-1 items-center justify-center p-4">
       <Panel className="w-full max-w-sm">
         <form onSubmit={join} className="flex flex-col gap-4 p-6">
-          <div>
-            <p className="text-sm font-medium text-accent">Lesson Call</p>
-            <h1 className="text-2xl font-semibold">
+          <div className="flex flex-col gap-3">
+            <Wordmark size="sm" />
+            <h1 className="text-2xl">
               {exit === "left" ? "You left the lesson" : "Join your lesson"}
             </h1>
           </div>
