@@ -15,17 +15,18 @@ const QUICK_CALL_GRACE_MS = 2 * 60 * 1000;
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-dvh flex-1 p-4 sm:p-8">
-      <div className="mx-auto flex max-w-2xl flex-col gap-8">
-        <header className="flex items-center justify-between">
-          <p className="text-lg font-semibold text-accent">Lesson Call</p>
-          <form action={signOut}>
-            <Button variant="ghost" size="sm">
-              Log out
-            </Button>
-          </form>
-        </header>
+    <main className="flex min-h-dvh flex-1 flex-col gap-8 p-4 sm:p-8">
+      {/* Full width, so "Log out" sits in the top-right corner; the content below is centred. */}
+      <header className="flex items-center justify-between">
+        <p className="text-lg font-semibold text-accent">Lesson Call</p>
+        <form action={signOut}>
+          <Button variant="ghost" size="sm">
+            Log out
+          </Button>
+        </form>
+      </header>
 
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
         <Suspense fallback={<p className="text-ink-muted">Loading…</p>}>
           <Lessons />
         </Suspense>
