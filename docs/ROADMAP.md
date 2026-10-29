@@ -34,14 +34,18 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 - [x] Update "Teacher account" in `docs/ARCHITECTURE.md`
 
 ## S3: Security check (before inviting friends)
-- [ ] RLS: each teacher sees only their own lessons and files; run Supabase's Security Advisor
-- [ ] Token route: student tokens only for an existing slug; slugs too long to guess; token lifetime and grants (no room admin for students)
-- [ ] Teacher-only messages (`control`, mute, nudge) can't be faked by the student
-- [ ] `/api/mute` and the end/delete routes check lesson ownership
-- [ ] No secret in `NEXT_PUBLIC_*` or the client bundle
-- [ ] Sign-up abuse: Supabase CAPTCHA (Turnstile) or rate limits; minimum password length
-- [ ] Security headers in `next.config.ts` (no framing, referrer policy; CSP if LiveKit and Excalidraw still work)
-- [ ] Write findings here, plus the "Before going commercial" list below
+- [x] RLS (code): `lessons` is the only table; one policy, `teacher_id = auth.uid()` for read and write, so a teacher can't read, change or hand over another teacher's rows. No files yet (S4).
+- [ ] User: run Supabase's Security Advisor (Database → Advisors) and fix what it lists
+- [x] Token route: student tokens only for an existing slug; slugs are 10 random characters from 32 (50 bits, not guessable); 4 h tokens; nobody gets room admin. **Fixed:** quick-call links stop working after 12 h, not only once the dashboard deletes them.
+- [x] Teacher-only messages. Mute: sent by the server, the student ignores copies from participants (already). **Fixed:** "student can edit" was in the Y.Doc, and the teacher always accepts full diffs from the student, so a tampered student client could switch it on. Now it's in the teacher's LiveKit attributes, which only the teacher's token may set (`lib/sync/useStudentCanEdit.ts`); it starts off on every join. **Fixed:** the (!) nudge is only accepted from the teacher.
+- [x] `/api/mute` checks ownership (RLS lookup); Remove/End/Leave are server actions that delete through RLS and only close the room of a row they deleted
+- [x] No secret in `NEXT_PUBLIC_*` or the client bundle (checked the built chunks for secret names and key prefixes)
+- [ ] User, in Supabase: Authentication → Rate Limits: emails per hour down to about 10 (Gmail allows ~500/day; a sign-up bot would burn the account). Minimum password 8 is set (S2). CAPTCHA (Turnstile) later, see below.
+- [x] Security headers in `next.config.ts`: no framing (CSP `frame-ancestors` + `X-Frame-Options`), `nosniff`, referrer policy, camera/mic/screen only for the app itself
+- [x] **Fixed:** open redirect in `/auth/confirm`: `next=/\evil.com` passed the "starts with /" check, and browsers read it as another site. Now checked on the parsed URL.
+- [x] Findings written here, plus the "Before going commercial" list below
+
+Accepted for now: a tampered student client can still put content on the board while editing is off (its full-state diff is accepted, so the teacher's refreshed page can recover). The teacher can Clear and remove the student. A strict script CSP is left out (needs a nonce per request, which makes every page dynamic).
 
 ## S4: Audio library
 - [ ] Private Supabase Storage bucket `audio`, files under `<teacher_id>/`; RLS so a teacher only reads and writes their own folder; audio types only, about 20 MB per file (free tier: 1 GB total). Migration in `supabase/migrations/`
@@ -82,4 +86,8 @@ Rule: a wait that takes you into or out of a lesson shows the full loading scree
 - [ ] Vercel Hobby is non-commercial only: move to Vercel Pro, or Netlify / Cloudflare Pages
 - [ ] Own domain (e.g. teachingtime.app)
 - [ ] Privacy policy and terms (GDPR: EU users, video and stored boards)
+- [ ] CAPTCHA on sign-up, login and forgot password (Supabase + Cloudflare Turnstile; needs the token passed from our forms)
+- [ ] Own email sender (Resend, Postmark, …) instead of the teacher's Gmail
+- [ ] Strict CSP for scripts (nonces) if the speed cost is acceptable; recheck LiveKit and Excalidraw
+- [ ] Rate limit the token route (invite slugs can't be guessed, but it costs nothing to limit)
 - [ ] Free tiers: LiveKit's monthly participant minutes are shared by all teachers (a 1-hour lesson uses about 120); Supabase free projects pause after about a week without activity

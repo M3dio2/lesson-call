@@ -4,9 +4,7 @@ import { ControlBar, useRemoteParticipants } from "@livekit/components-react";
 import { MediaDeviceFailure, Track } from "livekit-client";
 import { MicOff, Pencil, PencilOff } from "lucide-react";
 import { useState } from "react";
-import type * as Y from "yjs";
 import { muteMicrophones } from "@/lib/mute";
-import { useYMapValue } from "@/lib/sync/useYMapValue";
 import type { Role } from "./LessonRoom";
 import { deviceProblemMessage } from "./StatusBanner";
 
@@ -15,13 +13,15 @@ import { deviceProblemMessage } from "./StatusBanner";
 export default function RoomControls({
   role,
   lessonId,
-  control,
+  studentCanEdit,
+  onStudentCanEditChange,
   isPhone,
   onProblem,
 }: {
   role: Role;
   lessonId?: string;
-  control: Y.Map<unknown>;
+  studentCanEdit: boolean;
+  onStudentCanEditChange: (canEdit: boolean) => void;
   isPhone: boolean;
   onProblem: (message: string) => void;
 }) {
@@ -30,7 +30,7 @@ export default function RoomControls({
       {role === "teacher" && lessonId && (
         <>
           <MuteStudentButton lessonId={lessonId} onProblem={onProblem} />
-          <StudentCanEditToggle control={control} />
+          <StudentCanEditToggle canEdit={studentCanEdit} onChange={onStudentCanEditChange} />
           <span aria-hidden className="mx-1 h-6 w-px bg-line" />
         </>
       )}
@@ -86,9 +86,15 @@ function MuteStudentButton({
   );
 }
 
-// Lives in the shared "control" map, so the student's editors follow it (see LessonContent).
-function StudentCanEditToggle({ control }: { control: Y.Map<unknown> }) {
-  const canEdit = useYMapValue<boolean>(control, "studentCanEdit") ?? false;
+// Published in the teacher's participant attributes, so the student's editors follow it
+// (lib/sync/useStudentCanEdit.ts).
+function StudentCanEditToggle({
+  canEdit,
+  onChange,
+}: {
+  canEdit: boolean;
+  onChange: (canEdit: boolean) => void;
+}) {
   const label = canEdit
     ? "The student can edit the text and drawing. Click to make it view only."
     : "The student can only view the text and drawing. Click to let them edit.";
@@ -99,7 +105,7 @@ function StudentCanEditToggle({ control }: { control: Y.Map<unknown> }) {
       title={label}
       aria-label="Student can edit"
       aria-pressed={canEdit}
-      onClick={() => control.set("studentCanEdit", !canEdit)}
+      onClick={() => onChange(!canEdit)}
     >
       {canEdit ? <Pencil size={16} aria-hidden /> : <PencilOff size={16} aria-hidden />}
     </button>

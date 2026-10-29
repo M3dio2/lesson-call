@@ -27,7 +27,7 @@ S1 (speed) and S2 (sign-up) done. Next: **Friends test S3 (security check)**, th
 ## Architecture (short)
 **Read `docs/ARCHITECTURE.md` before touching `lib/sync/`, the room or the API routes.**
 - Role (`teacher`/`student`) is in the LiveKit token metadata, set by `/api/livekit-token`. Teachers sign up and log in (Supabase); a student joins with `invite_slug` + name, no account.
-- One Yjs `Y.Doc` per join (text pad, `board`, `control`), synced peer-to-peer by `lib/sync/useYjsSync.ts`. Teacher saves it to `lessons.doc_snapshot`.
+- One Yjs `Y.Doc` per join (text pad, `board`), synced peer-to-peer by `lib/sync/useYjsSync.ts`. "Student can edit" is a LiveKit attribute on the teacher, not in the doc. Teacher saves it to `lessons.doc_snapshot`.
 - Edit permission is enforced twice: read-only editors on the student, and the teacher's client drops student updates.
 - **`cacheComponents` is on.** Any component that reads `cookies()`, `params` or Supabase data must sit inside `<Suspense>`, or the build fails. Pattern: sync page, inner async component does the read. `createClient()` in `lib/supabase/server.ts` calls `await connection()` first.
 - Auth redirects live in `proxy.ts` (Next 16's name for middleware).

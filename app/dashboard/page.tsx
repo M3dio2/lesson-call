@@ -8,10 +8,9 @@ import Marker from "@/components/ui/Marker";
 import Wordmark from "@/components/ui/Wordmark";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
-import { isWithin } from "@/lib/time";
+import { isWithin, QUICK_CALL_MAX_AGE_MS } from "@/lib/time";
 import { addStudent, removeLesson, setTeacherName, signOut, startQuickCall } from "./actions";
 
-const QUICK_CALL_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 // Time for the teacher to get into a new quick call before it counts as empty.
 const QUICK_CALL_GRACE_MS = 2 * 60 * 1000;
 

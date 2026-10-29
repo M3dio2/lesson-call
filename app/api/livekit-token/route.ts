@@ -2,6 +2,7 @@ import { AccessToken } from "livekit-server-sdk";
 import { after } from "next/server";
 import { roomName } from "@/lib/livekit";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { isWithin, QUICK_CALL_MAX_AGE_MS } from "@/lib/time";
 
 type Role = "teacher" | "student";
 
@@ -61,10 +62,12 @@ export async function POST(request: Request) {
     }
     const { data: lesson } = await createAdminClient()
       .from("lessons")
-      .select("id")
+      .select("id, kind, created_at")
       .eq("invite_slug", body.slug)
       .maybeSingle();
-    if (!lesson) {
+    // A quick call's link stops working after 12 hours, even before the dashboard removes it.
+    const expired = lesson?.kind === "quick" && !isWithin(lesson.created_at, QUICK_CALL_MAX_AGE_MS);
+    if (!lesson || expired) {
       return Response.json({ error: "This invite link is not valid" }, { status: 404 });
     }
     lessonId = lesson.id;
@@ -82,12 +85,16 @@ export async function POST(request: Request) {
     metadata: JSON.stringify({ role }),
     ttl: "4h",
   });
+  // No room admin for anyone (muting goes through /api/mute). Only the teacher may set their own
+  // attributes ("student can edit", lib/sync/useStudentCanEdit.ts); a student can't change
+  // their metadata, so they can't make themselves a teacher.
   token.addGrant({
     roomJoin: true,
     room: roomName(lessonId),
     canPublish: true,
     canSubscribe: true,
     canPublishData: true,
+    canUpdateOwnMetadata: role === "teacher",
   });
 
   return Response.json({ token: await token.toJwt() });

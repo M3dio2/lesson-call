@@ -15,7 +15,7 @@ import {
 import { ConnectionState, type DisconnectReason, MediaDeviceFailure, Track } from "livekit-client";
 import { MicOff, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import * as Y from "yjs";
 import TextPad from "@/components/board/TextPad";
@@ -33,8 +33,8 @@ import { fromBase64 } from "@/lib/sync/base64";
 import { clearLesson } from "@/lib/sync/clearLesson";
 import { useLessonPersistence } from "@/lib/sync/useLessonPersistence";
 import { useNudge } from "@/lib/sync/useNudge";
+import { useStudentCanEdit } from "@/lib/sync/useStudentCanEdit";
 import { useYjsSync } from "@/lib/sync/useYjsSync";
-import { useYMapValue } from "@/lib/sync/useYMapValue";
 
 const Whiteboard = dynamic(() => import("@/components/board/Whiteboard"), {
   ssr: false,
@@ -105,9 +105,9 @@ type BoardTab = "text" | "draw";
 // The lesson Y.Doc holds everything shared:
 // - the text pad (Tiptap's default XML fragment)
 // - "board": whiteboard elements
-// - "control": teacher-owned settings ("studentCanEdit")
+// ("student can edit" is not in the doc, see useStudentCanEdit.)
 // It lives inside LiveKitRoom so it can sync over the room's data channel. The control bar
-// sits here too, because the teacher's "student can edit" toggle writes to the doc.
+// sits here too, next to the state of the teacher's "student can edit" toggle.
 // The teacher's doc starts from the saved snapshot; the student's starts empty and is filled
 // by the peer on connect.
 function LessonContent({
@@ -126,15 +126,11 @@ function LessonContent({
     if (lesson?.snapshot) Y.applyUpdate(doc, fromBase64(lesson.snapshot));
     return doc;
   });
-  const control = useMemo(() => doc.getMap<unknown>("control"), [doc]);
+  const [studentCanEdit, setStudentCanEdit] = useStudentCanEdit(role === "teacher");
 
   // The teacher ignores live edits from the student while editing is off
   // (the student's UI is read-only then; this also stops a tampered client).
-  useYjsSync(
-    doc,
-    "lesson",
-    role === "teacher" ? () => control.get("studentCanEdit") === true : undefined,
-  );
+  useYjsSync(doc, "lesson", role === "teacher" ? () => studentCanEdit : undefined);
   useLessonPersistence(doc, lesson?.saveBoard ? lesson.id : undefined);
 
   // Teacher only: mutes a participant's microphone from their camera tile.
@@ -152,12 +148,13 @@ function LessonContent({
       {isPhone ? (
         <PhoneLayout />
       ) : (
-        <LessonLayout doc={doc} control={control} role={role} onMute={onMute} />
+        <LessonLayout doc={doc} studentCanEdit={studentCanEdit} role={role} onMute={onMute} />
       )}
       <RoomControls
         role={role}
         lessonId={lesson?.id}
-        control={control}
+        studentCanEdit={studentCanEdit}
+        onStudentCanEditChange={setStudentCanEdit}
         isPhone={isPhone}
         onProblem={onProblem}
       />
@@ -171,12 +168,12 @@ function LessonContent({
 // Every divider can be dragged; sizes are remembered per browser.
 function LessonLayout({
   doc,
-  control,
+  studentCanEdit,
   role,
   onMute,
 }: {
   doc: Y.Doc;
-  control: Y.Map<unknown>;
+  studentCanEdit: boolean;
   role: Role;
   onMute?: (identity: string) => void;
 }) {
@@ -209,7 +206,7 @@ function LessonLayout({
           <ResizeHandle orientation="vertical-line" />
           {/* 340px: narrower, and the whiteboard's tool row no longer fits (app/globals.css). */}
           <Panel id="board" minSize="340px">
-            <BoardPanel doc={doc} control={control} role={role} />
+            <BoardPanel doc={doc} studentCanEdit={studentCanEdit} role={role} />
           </Panel>
         </Group>
       </Panel>
@@ -278,11 +275,18 @@ function CameraStage({ onMute }: { onMute?: (identity: string) => void }) {
 // Text and whiteboard. Each person picks their own tab.
 // The text pad stays mounted (keeps the editor); the whiteboard mounts only when shown,
 // because Excalidraw can't measure a hidden canvas.
-function BoardPanel({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown>; role: Role }) {
+function BoardPanel({
+  doc,
+  studentCanEdit,
+  role,
+}: {
+  doc: Y.Doc;
+  studentCanEdit: boolean;
+  role: Role;
+}) {
   const [tab, setTab] = useState<BoardTab>("text");
   const [highlight, setHighlight] = useState<BoardTab | null>(null);
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const studentCanEdit = useYMapValue<boolean>(control, "studentCanEdit") ?? false;
   const isTeacher = role === "teacher";
   const canEdit = isTeacher || studentCanEdit;
 

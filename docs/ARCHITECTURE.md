@@ -20,13 +20,14 @@ Read this before touching `lib/sync/`, the room (`components/room/`) or the API 
 One Yjs `Y.Doc` per join, created in `LessonContent` (`components/room/LessonRoom.tsx`). It holds:
 - the text pad: Tiptap's default XML fragment
 - `board`: a Y.Map of Excalidraw elements by id, merged with `reconcileElements`
-- `control`: a Y.Map of teacher-owned settings, such as `tab` and `studentCanEdit`. Only the teacher's UI writes it.
 
 ## Sync
 - `lib/sync/useYjsSync.ts` syncs the doc over LiveKit **data streams** (`lib/sync/transport.ts`; no size limit).
 - When two peers see each other, they exchange state vectors and the missing updates. Late joins and refreshes recover from the peer.
 
 ## Edit permission
+The teacher's "student can edit" switch is **not** in the Y.Doc (the teacher accepts full-state diffs from the student, and those could change it). It's a LiveKit participant attribute on the teacher (`lib/sync/useStudentCanEdit.ts`). The token route gives only teachers `canUpdateOwnMetadata`, so a student can't set attributes or change their own role. It starts off on every join.
+
 Enforced in two places:
 - The student's editors are read-only when permission is off (Tiptap's `setEditable`, Excalidraw's `viewModeEnabled`).
 - The teacher's client ignores student updates while permission is off.
@@ -34,6 +35,7 @@ Enforced in two places:
 Details:
 - The teacher's filter drops live `update`s from the student, but always accepts full-state `diff`s, so a refreshed page can recover from the peer.
 - Dropping a Yjs update leaves later updates from that client "pending", because they depend on it. `useYjsSync` notices pending structs and asks that peer for a diff, which heals the gap. A side effect: edits made while forbidden arrive once permission is back on.
+- A tampered student client could still send a diff with board content while editing is off. Accepted (see S3 in `docs/ROADMAP.md`).
 
 ## Snapshots
 - `useLessonPersistence` (teacher only) saves the whole Y.Doc as base64 into `lessons.doc_snapshot`.
@@ -42,5 +44,5 @@ Details:
 
 ## Teacher actions
 - **Muting:** `/api/mute` (teacher only, checks lesson ownership) mutes microphones through LiveKit's server API and sends a server-only data message (`lib/mute.ts`) so the student sees why. LiveKit can't switch a mic back on; the student unmutes themselves.
-- **(!) nudge** (`lib/sync/useNudge.ts`): a one-off LiveKit data message (topic `nudge`), not stored in the Y.Doc, so it isn't replayed on join or refresh. The student's board switches to that tab and highlights it.
+- **(!) nudge** (`lib/sync/useNudge.ts`): a one-off LiveKit data message (topic `nudge`), not stored in the Y.Doc, so it isn't replayed on join or refresh. Only accepted from a participant whose token says `teacher`. The student's board switches to that tab and highlights it.
 - **"Clear"** (`lib/sync/clearLesson.ts`) marks whiteboard elements deleted with a higher version, and empties the text fragment.
