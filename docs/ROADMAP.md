@@ -17,11 +17,11 @@ Tick items off as they're done. One milestone per working session. Details of fi
 Goal: friends can sign up as teachers and give lessons. Order matters: move Supabase to Europe **before** friends create accounts, and check security **before** opening sign-up.
 
 ## S1: Speed (was M10)
-Supabase is in US West and Vercel functions in North America, while the teacher and students are in Europe: each page load waits on several transatlantic round trips (0.3–0.4 s each). Video is unaffected.
-- [ ] Measure dashboard and join times first (dev server log: "application-code")
-- [ ] New Supabase project in Frankfurt (`eu-central-1`): run `supabase/migrations/` in order, recreate the teacher account (with `display_name`), copy the `lessons` rows
-- [ ] Swap the Supabase keys in `.env.local` and Vercel (the user pastes them); set Vercel's Function Region to `fra1`
-- [ ] Measure again
+Vercel functions ran in North America while Supabase was in US West, so each page waited on several long round trips. Fix: both in the same region. Testing happens in South America, later users are global, so US East is the middle ground (round trips from Chile: São Paulo ~125 ms, US East ~215 ms, Frankfurt ~300 ms). Video is unaffected (LiveKit picks the nearest edge).
+- [x] Measure before: one Supabase lookup via the token route 0.4–0.65 s from the dev server (log: "application-code")
+- [x] New Supabase project in US East (`us-east-1`): run `supabase/migrations/` in order, recreate the teacher account (old lessons are not copied)
+- [x] Swap the Supabase keys in `.env.local` and Vercel (the user pastes them); Vercel region `iad1` in `vercel.json`
+- [ ] Measure again (dev and live site)
 
 ## S2: Teacher sign-up (replaces M9)
 - [ ] `/signup` page (name, email, password) with `supabase.auth.signUp`; the name goes into `display_name` metadata
