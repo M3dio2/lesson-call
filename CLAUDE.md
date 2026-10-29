@@ -10,9 +10,9 @@ S1 (speed) and S2 (sign-up) done. Next: **Friends test S3 (security check)**, th
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
 - **LiveKit Cloud** (`livekit-client`, `@livekit/components-react`) for audio, video, screen share, and all live sync over its data channel (Yjs, whiteboard, teacher messages).
-- **Supabase** for teacher auth (`@supabase/ssr`) and the `lessons` table (with snapshots). Not used for live sync.
+- **Supabase** for teacher auth (`@supabase/ssr`; open sign-up, emails sent via the teacher's Gmail SMTP) and the `lessons` table (with snapshots). Not used for live sync.
 - Text pad: Tiptap + Yjs. Whiteboard: Excalidraw, loaded with `dynamic(..., { ssr: false })`.
-- Hosted on Vercel (Hobby).
+- Hosted on Vercel (Hobby). Supabase project and Vercel functions both in **US East** (`iad1` in `vercel.json`): keep them in the same region. Testers are in South America, later users global.
 
 ## Commands
 - `npm run dev`: dev server at http://localhost:3000
