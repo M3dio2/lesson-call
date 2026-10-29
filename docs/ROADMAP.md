@@ -48,10 +48,10 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 Accepted for now: a tampered student client can still put content on the board while editing is off (its full-state diff is accepted, so the teacher's refreshed page can recover). The teacher can Clear and remove the student. A strict script CSP is left out (needs a nonce per request, which makes every page dynamic).
 
 ## P1: Stronger passwords
-- [ ] Sign-up and reset page: "Confirm password" field; mismatches are refused before Supabase is asked
-- [ ] Rule: at least 10 characters, letters and digits. One helper in `lib/`, used by both forms, with a live hint under the field
+- [x] Sign-up and reset page: "Confirm password" field; mismatches are refused before Supabase is asked
+- [x] Rule: at least 10 characters, letters and digits (`lib/passwordRules.ts`); both forms use `components/auth/NewPasswordFields.tsx`, with a live hint under the field
 - [ ] User, in Supabase (Auth → Providers → Email): minimum length 10, "letters and digits"
-- [ ] Update `weak_password` in `lib/authErrors.ts`
+- [x] Update `weak_password` in `lib/authErrors.ts`
 
 ## C1: Classroom
 Each student in the list becomes a classroom: the teacher keeps that student's files there and starts lessons from it. Only the teacher uploads; students never log in.

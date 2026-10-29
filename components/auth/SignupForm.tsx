@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthCard, { textLink } from "@/components/auth/AuthCard";
+import NewPasswordFields from "@/components/auth/NewPasswordFields";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import { authErrorMessage } from "@/lib/authErrors";
+import { passwordProblem } from "@/lib/passwordRules";
 import { createClient } from "@/lib/supabase/client";
 
 // New teacher account. The name goes into user metadata (display_name), the same place the
@@ -18,12 +20,18 @@ export default function SignupForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
+    const problem = passwordProblem(password, confirm);
+    if (problem) {
+      setError(problem);
+      return;
+    }
     setLoading(true);
     setError(null);
     const { data, error } = await createClient().auth.signUp({
@@ -81,14 +89,12 @@ export default function SignupForm() {
           autoComplete="email"
           required
         />
-        <Field
-          label="Password (at least 8 characters)"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="new-password"
-          minLength={8}
-          required
+        <NewPasswordFields
+          label="Password"
+          password={password}
+          confirm={confirm}
+          onPasswordChange={setPassword}
+          onConfirmChange={setConfirm}
         />
         <Button disabled={loading}>{loading ? "Creating your account…" : "Create account"}</Button>
         {error && <p className="text-sm text-danger">{error}</p>}

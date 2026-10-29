@@ -6,7 +6,7 @@ const messages: Record<string, string> = {
   email_not_confirmed: "Please confirm your email first: click the link we sent you.",
   user_already_exists: "There's already an account with this email. Log in instead.",
   email_exists: "There's already an account with this email. Log in instead.",
-  weak_password: "Please choose a longer password (at least 8 characters).",
+  weak_password: "Please use at least 10 characters, with letters and numbers.",
   same_password: "That's your current password. Please choose a new one.",
   email_address_invalid: "Please check the email address.",
   signup_disabled: "New accounts can't be created right now.",
