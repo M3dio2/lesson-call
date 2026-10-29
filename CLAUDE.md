@@ -1,98 +1,51 @@
 @AGENTS.md
 
-# Lesson Call
+# TeachingTime (repo: lesson-call)
 
-1-on-1 video lesson app for an English teacher and one student. Like Google Meet, plus:
-- Screen share on the main stage while **both cameras stay visible** in a sidebar.
-- Shared **text pad** and **whiteboard** tabs that sync instantly.
-- Teacher toggles whether the student may edit the text pad and whiteboard.
+1-on-1 video lesson app for an English teacher and one student. Like Google Meet, plus: screen share with both cameras visible, a shared text pad and whiteboard that sync instantly, and a teacher toggle for whether the student may edit them.
 
 ## Current milestone
-**D5 done** ("Highlighter"), and fixes F1–F6. Next: D5d (one wait, one screen). Open: D5 "Still to decide", the D4 real phone test, then M10 (faster for Europe) and M9 (more teachers). See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+Next: **Friends test S1 (speed)**, then S2–S6, by Sun 1 Nov 2026. See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
-- **LiveKit Cloud** (free tier) for audio, video and screen share, using `livekit-client` and `@livekit/components-react`.
-  - The LiveKit **data channel** carries all live sync: Yjs updates, whiteboard changes, and teacher control messages.
-  - Supabase is not used for live sync.
-- **Supabase** (free tier) for teacher auth (`@supabase/ssr`) and the `lessons` table (with snapshots of the text pad and whiteboard).
-- **Text pad:** Tiptap + Yjs. **Whiteboard:** Excalidraw (MIT), loaded with `dynamic(..., { ssr: false })`.
+- **LiveKit Cloud** (`livekit-client`, `@livekit/components-react`) for audio, video, screen share, and all live sync over its data channel (Yjs, whiteboard, teacher messages).
+- **Supabase** for teacher auth (`@supabase/ssr`) and the `lessons` table (with snapshots). Not used for live sync.
+- Text pad: Tiptap + Yjs. Whiteboard: Excalidraw, loaded with `dynamic(..., { ssr: false })`.
 - Hosted on Vercel (Hobby).
 
 ## Commands
 - `npm run dev`: dev server at http://localhost:3000
-- `npm run build`: production build. Must pass before every commit.
-  - Stop `npm run dev` first. A build while the dev server runs rewrites `.next`, and the dev server then serves stale CSS (new classes and tokens missing) until it's restarted with `.next/dev` deleted.
+- `npm run build`: must pass before every commit. Stop `npm run dev` first: a build rewrites `.next`, and the dev server then serves stale CSS until restarted with `.next/dev` deleted.
 - `npm run lint`: ESLint.
 
 ## Environment
-- Variable names live in `.env.local.example`. Real values go in `.env.local` (gitignored) and in the Vercel project env settings.
-- Secrets (`LIVEKIT_API_SECRET`, `SUPABASE_SECRET_KEY`) are used **only** in server code (route handlers). Never prefix them with `NEXT_PUBLIC_`.
+- Variable names live in `.env.local.example`. Real values go in `.env.local` (gitignored) and Vercel's env settings.
+- Secrets (`LIVEKIT_API_SECRET`, `SUPABASE_SECRET_KEY`) only in server code (route handlers). Never prefix them with `NEXT_PUBLIC_`.
 - Claude never asks for or handles secret values. The user pastes them in themselves.
 
-## Architecture rules
-- **Roles:** the `teacher` or `student` role is put in the LiveKit token metadata by `/api/livekit-token`.
-  - Teacher: must be logged in to Supabase.
-  - Student: sends the lesson's `invite_slug` plus a display name, and needs no account.
-- **Shared state** is one Yjs `Y.Doc` per join, created in `LessonContent` (`components/room/LessonRoom.tsx`). It holds:
-  - the text pad: Tiptap's default XML fragment
-  - `board`: a Y.Map of Excalidraw elements by id, merged with `reconcileElements`
-  - `control`: a Y.Map of teacher-owned settings, such as `tab` and (M7) `studentCanEdit`. Only the teacher's UI writes it.
-- **Sync:** `lib/sync/useYjsSync.ts` syncs the doc over LiveKit **data streams** (`lib/sync/transport.ts`; no size limit).
-  - When two peers see each other, they exchange state vectors and the missing updates. Late joins and refreshes recover from the peer.
-- **`cacheComponents` is on** (in `next.config.ts`). Any component that reads `cookies()`, `params` or Supabase data must sit inside `<Suspense>`, or the build fails.
-  - Pattern: the page is sync; an inner async component does the read.
-  - `partialPrefetching` can prerender with cookies available, so `Date.now()` (used by Supabase) still errors. `createClient()` in `lib/supabase/server.ts` therefore calls `await connection()` first.
-- **Auth redirects** live in `proxy.ts` (Next 16's name for middleware).
-- **Lesson kinds:** `lessons.kind` is `student` (fixed link; board kept until the next lesson) or `quick` (one-off; not saved; deleted with "End" or after 12 hours).
-  - `lessons.last_active_at` is set by the token route when the teacher joins, and by each save.
-  - If it's more than 3 hours old, `app/lesson/[id]/page.tsx` starts with a clean board.
-- **Teacher account:** created by hand in the Supabase dashboard, with sign-ups disabled. There is no sign-up page.
-  - The teacher's display name lives in Supabase user metadata (`display_name`), set on the dashboard; the token route reads it with `getUser()`.
-- **Edit permission** is enforced in two places:
-  - The student's editors are read-only when permission is off.
-  - The teacher's client ignores student updates while permission is off.
-- **Snapshots:** `useLessonPersistence` (teacher only) saves the whole Y.Doc as base64 into `lessons.doc_snapshot`.
-  - It saves every 30 seconds if something changed, when the tab is hidden, and when leaving.
-  - `app/lesson/[id]/page.tsx` loads the snapshot back into the teacher's doc.
-- **Edit permission details:**
-  - The teacher's filter drops live `update`s from the student, but always accepts full-state `diff`s, so a refreshed page can recover from the peer.
-  - Dropping a Yjs update leaves later updates from that client "pending", because they depend on it. `useYjsSync` notices pending structs and asks that peer for a diff, which heals the gap. A side effect: edits made while forbidden arrive once permission is back on.
-  - The read-only UI uses Tiptap's `setEditable` and Excalidraw's `viewModeEnabled`.
-- **Muting:** `/api/mute` (teacher only, checks lesson ownership) mutes microphones through LiveKit's server API and sends a server-only data message (`lib/mute.ts`) so the student sees why. LiveKit can't switch a mic back on; the student unmutes themselves.
-- **(!) nudge** (`lib/sync/useNudge.ts`): a one-off LiveKit data message (topic `nudge`), not stored in the Y.Doc, so it isn't replayed on join or refresh. The student's board switches to that tab and highlights it.
-- **"Clear"** (`lib/sync/clearLesson.ts`) marks whiteboard elements deleted with a higher version, and empties the text fragment.
+## Architecture (short)
+**Read `docs/ARCHITECTURE.md` before touching `lib/sync/`, the room or the API routes.**
+- Role (`teacher`/`student`) is in the LiveKit token metadata, set by `/api/livekit-token`. Teacher is logged in; student joins with `invite_slug` + name, no account.
+- One Yjs `Y.Doc` per join (text pad, `board`, `control`), synced peer-to-peer by `lib/sync/useYjsSync.ts`. Teacher saves it to `lessons.doc_snapshot`.
+- Edit permission is enforced twice: read-only editors on the student, and the teacher's client drops student updates.
+- **`cacheComponents` is on.** Any component that reads `cookies()`, `params` or Supabase data must sit inside `<Suspense>`, or the build fails. Pattern: sync page, inner async component does the read. `createClient()` in `lib/supabase/server.ts` calls `await connection()` first.
+- Auth redirects live in `proxy.ts` (Next 16's name for middleware).
 
 ## Layout
-- `app/`: routes
-  - `dashboard/`: teacher's lesson list
-  - `lesson/[id]/`: teacher room
-  - `join/[slug]/`: student join
-  - `api/livekit-token/`: token route
-- `components/room/`: video layout and controls
-- `components/board/`: TextPad, Whiteboard
-- `lib/sync/`: data-channel transport and Yjs provider
-- `lib/supabase/`: Supabase clients
-- `supabase/migrations/`: SQL. Run it manually in the Supabase SQL editor.
+- `app/`: routes (`dashboard/`, `lesson/[id]/` teacher room, `join/[slug]/` student join, `api/`)
+- `components/room/`: video layout and controls; `components/board/`: TextPad, Whiteboard; `components/ui/`: shared UI
+- `lib/sync/`: data-channel transport and Yjs provider; `lib/supabase/`: Supabase clients
+- `supabase/migrations/`: SQL, run manually in the Supabase SQL editor
 
 ## Design
-- **Read `docs/DESIGN.md` before any UI work.** It holds the principles, colour tokens and shared components (`components/ui/`).
-- Use token classes (`bg-paper`, `text-ink-muted`, `bg-accent`, …), never raw hex values or `neutral-*`/`blue-*`.
-- If CSS changes don't show up in `npm run dev`, Turbopack's cache is stale. Stop the server, delete `.next/dev` and restart. The browser may also need a hard reload.
+- **Read `docs/DESIGN.md` before any UI work.** Use token classes (`bg-paper`, `text-ink-muted`, `bg-accent`, …), never raw hex or `neutral-*`/`blue-*`.
+- LiveKit's stylesheet is unlayered and beats Tailwind on `.lk-*` elements: use inline `style` for sizes on LiveKit components.
+- CSS changes not showing in dev: stop the server, delete `.next/dev`, restart, hard-reload.
 
 ## Workflow
 - One milestone per session. Start by reading `docs/ROADMAP.md`.
-- After building:
-  1. `npm run build` and `npm run lint` must pass.
-  2. The user tests with two browser windows (normal plus incognito acting as the student).
-  3. Commit on a feature branch, then merge to `main`. Vercel deploys from `main`.
-- Then tick the milestone off in `docs/ROADMAP.md` and update "Current milestone" above.
-- Git branch switches can make a running `npm run dev` serve 404s for files that were briefly removed. Restart the dev server after committing.
-- **Automated browser tests** (Playwright) may only join the lesson titled **"Test"**, and only after asking the user. Real lessons may have the teacher live in them.
-- LiveKit's stylesheet is unlayered, so it beats Tailwind utilities on `.lk-*` elements. Use inline `style` for sizes on LiveKit components (see `LessonRoom`).
-- Keep it simple: this is a small, single-teacher app. No premature abstractions.
-
-## Known free-tier caveats
-- Vercel Hobby is for non-commercial use. For paid lessons, consider Vercel Pro, or Netlify or Cloudflare Pages.
-- Supabase free projects pause after about 1 week of inactivity. Unpause them in the dashboard.
-- LiveKit Cloud's free tier has a monthly limit on participant minutes. A 1-hour lesson uses about 120.
+- After building: `npm run build` and `npm run lint` pass → the user tests with two browser windows (normal + incognito as student) → commit on a feature branch, merge to `main` (Vercel deploys from `main`) → tick the roadmap and update "Current milestone".
+- Branch switches can make a running `npm run dev` serve 404s. Restart it after committing.
+- **Playwright** may only join the lesson titled **"Test"**, and only after asking the user. Real lessons may have a teacher live in them.
+- Keep it simple: small app, no premature abstractions.
