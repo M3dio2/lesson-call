@@ -124,14 +124,21 @@ Rules: one marker gesture per screen; draw once, then rest (only the loading lin
 - [x] Student join page: "Join your lesson" with "lesson" underlined
 
 ### D5c: Entering, joining and leaving
-- [ ] Loading screen "Getting your lesson ready" with the looping marker line (entering); "Leaving the lesson" (leaving)
-- [ ] Someone joins: their camera fades in, plus a small "Anna joined" toast
-- [ ] Call ended / left: marker tick and "See you next time!"
+- [x] Loading screen "Getting your lesson ready" with the looping marker line (entering); "Leaving the lesson" (leaving)
+- [x] Someone joins: their camera fades in, plus a small "Anna joined" toast
+- [x] Call ended / left: marker tick and "See you next time!"
 
 ### Still to decide
 - [ ] Dark ink instead of brown for the main buttons
 - [ ] Arrow doodle pointing to "Add a student" on an empty dashboard
 - [ ] Optional: rename the Vercel project (e.g. teachingtime.vercel.app; the user does this in Vercel)
+
+## M10: Faster for Europe
+Supabase is in US West and Vercel functions in North America, while the teacher (and likely the students) are in Europe: each page load waits on several transatlantic round trips (measured 0.3–0.4 s each from the teacher's machine). Video is unaffected (LiveKit picks the nearest edge).
+- [ ] Now: set Vercel's Function Region to match Supabase (us-west-1 → `sfo1`, us-west-2 → `pdx1`); the user does this in Vercel
+- [ ] New Supabase project in Frankfurt (`eu-central-1`): run `supabase/migrations/` in order, recreate the teacher account, copy the `lessons` rows
+- [ ] Swap the Supabase keys in `.env.local` and Vercel (the user pastes them); set Vercel's Function Region to `fra1`
+- [ ] Check: dashboard and joining times before and after (dev server log: "application-code")
 
 ## M9: More teachers
 The data is already per teacher (`lessons.teacher_id` + RLS, name in user metadata); what's missing is getting new teachers in.

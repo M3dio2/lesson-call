@@ -3,6 +3,7 @@
 import "@livekit/components-styles";
 import {
   LiveKitRoom,
+  useConnectionState,
   ParticipantTile,
   RoomAudioRenderer,
   isTrackReference,
@@ -11,7 +12,7 @@ import {
   useTracks,
   VideoTrack,
 } from "@livekit/components-react";
-import { type DisconnectReason, MediaDeviceFailure, Track } from "livekit-client";
+import { ConnectionState, type DisconnectReason, MediaDeviceFailure, Track } from "livekit-client";
 import { MicOff, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
@@ -22,6 +23,8 @@ import Button from "@/components/ui/Button";
 import UiPanel from "@/components/ui/Panel";
 import TabBar from "@/components/ui/TabBar";
 import { PHONE_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
+import JoinToast from "./JoinToast";
+import LoadingScreen from "./LoadingScreen";
 import PhoneLayout from "./PhoneLayout";
 import RoomControls from "./RoomControls";
 import StatusBanner, { deviceProblemMessage } from "./StatusBanner";
@@ -90,6 +93,8 @@ export default function LessonRoom({ token, role, lesson, onLeave }: Props) {
         onDismissProblem={() => setProblem(null)}
       />
       <LessonContent role={role} lesson={lesson} isPhone={isPhone} onProblem={setProblem} />
+      <JoinToast />
+      <ConnectingScreen />
       <RoomAudioRenderer />
     </LiveKitRoom>
   );
@@ -418,4 +423,13 @@ function CameraTile({
       </Button>
     </div>
   );
+}
+
+// Covers the room until the first connection is made. Later drops show the "Reconnecting…"
+// banner instead (a different connection state).
+function ConnectingScreen() {
+  const connection = useConnectionState();
+  return connection === ConnectionState.Connecting ? (
+    <LoadingScreen title="Getting your lesson ready" />
+  ) : null;
 }

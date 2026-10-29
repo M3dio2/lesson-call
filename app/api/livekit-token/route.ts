@@ -1,4 +1,5 @@
 import { AccessToken } from "livekit-server-sdk";
+import { after } from "next/server";
 import { roomName } from "@/lib/livekit";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
@@ -23,28 +24,34 @@ export async function POST(request: Request) {
 
   if (typeof body.lessonId === "string") {
     const supabase = await createClient();
-    // getUser (not getClaims): the name may have changed since the session's token was issued.
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Side by side: each is a round trip to Supabase. getUser (not getClaims): the name may
+    // have changed since the session's token was issued. RLS makes the lesson query come back
+    // empty unless the lesson belongs to this teacher.
+    const [
+      {
+        data: { user },
+      },
+      { data: lesson },
+    ] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from("lessons").select("id").eq("id", body.lessonId).maybeSingle(),
+    ]);
     if (!user) {
       return Response.json({ error: "Please log in" }, { status: 401 });
     }
-    const { data: lesson } = await supabase
-      .from("lessons")
-      .select("id")
-      .eq("id", body.lessonId)
-      .maybeSingle();
     if (!lesson) {
       return Response.json({ error: "Lesson not found" }, { status: 404 });
     }
     lessonId = lesson.id;
     role = "teacher";
     // Marks the lesson as started (dashboard "Last lesson", 3-hour clean-board rule).
-    await supabase
-      .from("lessons")
-      .update({ last_active_at: new Date().toISOString() })
-      .eq("id", lessonId);
+    // After the response, so joining doesn't wait for it.
+    after(async () => {
+      await supabase
+        .from("lessons")
+        .update({ last_active_at: new Date().toISOString() })
+        .eq("id", lesson.id);
+    });
     name = user.user_metadata.display_name || "Teacher";
     identity = `teacher-${user.id}`;
   } else if (typeof body.slug === "string") {

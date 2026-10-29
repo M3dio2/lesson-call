@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { leaveQuickCall } from "@/app/dashboard/actions";
 import Button, { buttonClass } from "@/components/ui/Button";
 import LessonRoom, { type SavedLesson } from "./LessonRoom";
+import LoadingScreen from "./LoadingScreen";
 import RoomMessage from "./RoomMessage";
 
 export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
@@ -15,6 +16,7 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [replaced, setReplaced] = useState(false); // the lesson was opened in another tab
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/livekit-token", {
@@ -32,6 +34,9 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
 
   if (error) {
     return <p className="p-4 text-danger">{error}</p>;
+  }
+  if (leaving) {
+    return <LoadingScreen title="Leaving the lesson" />;
   }
   if (replaced) {
     return (
@@ -52,7 +57,7 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
     );
   }
   if (!token) {
-    return <p className="p-4 text-ink-muted">Starting lesson…</p>;
+    return <LoadingScreen title="Getting your lesson ready" />;
   }
   return (
     <LessonRoom
@@ -64,6 +69,7 @@ export default function TeacherRoom({ lesson }: { lesson: SavedLesson }) {
           setReplaced(true);
           return;
         }
+        setLeaving(true);
         // Quick calls (the unsaved kind) end when the teacher clicks Leave. A dropped
         // connection doesn't count.
         if (!lesson.saveBoard && reason === DisconnectReason.CLIENT_INITIATED) {

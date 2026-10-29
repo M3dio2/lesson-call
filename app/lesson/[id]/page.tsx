@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import LoadingScreen from "@/components/room/LoadingScreen";
 import TeacherRoom from "@/components/room/TeacherRoom";
 import { createClient } from "@/lib/supabase/server";
 import { isWithin } from "@/lib/time";
@@ -9,7 +10,7 @@ const NEW_LESSON_AFTER_MS = 3 * 60 * 60 * 1000;
 
 export default function LessonPage({ params }: PageProps<"/lesson/[id]">) {
   return (
-    <Suspense fallback={<p className="p-4 text-ink-muted">Starting lesson…</p>}>
+    <Suspense fallback={<LoadingScreen title="Getting your lesson ready" />}>
       <Lesson params={params} />
     </Suspense>
   );

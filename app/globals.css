@@ -157,10 +157,46 @@ body {
   border: 1px solid var(--color-line);
   box-shadow: var(--shadow-soft);
 }
-/* Camera tiles stay dark so video and the "camera off" placeholder look natural. */
+/* Camera tiles stay dark so video and the "camera off" placeholder look natural.
+   They fade in when they appear (someone joins, or the layout switches). */
 .lesson-room .lk-participant-tile {
   background: var(--color-video);
   border-radius: var(--radius-panel);
+  animation: tile-in 0.5s ease both;
+}
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+/* "Anna joined" (components/room/JoinToast.tsx): slides in, stays, fades out. */
+.join-toast {
+  translate: -50% 0;
+  animation: join-toast 2.6s ease both;
+}
+@keyframes join-toast {
+  0% {
+    opacity: 0;
+    translate: -50% -8px;
+  }
+  12%,
+  80% {
+    opacity: 1;
+    translate: -50% 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-room .lk-participant-tile {
+    animation: none;
+  }
+  .join-toast {
+    animation-duration: 0.01ms;
+    animation-fill-mode: none;
+  }
 }
 .lesson-room .lk-participant-placeholder {
   background: var(--color-video);

@@ -74,7 +74,11 @@ export default function StudentJoin({ slug }: { slug: string }) {
   }
 
   if (exit === "ended") {
-    return <RoomMessage title="The call has ended.">You can close this page.</RoomMessage>;
+    return (
+      <RoomMessage title="See you next time!" tick>
+        The lesson has ended. You can close this page.
+      </RoomMessage>
+    );
   }
   if (exit === "replaced") {
     return (

@@ -8,7 +8,7 @@ import Marker from "@/components/ui/Marker";
 import Wordmark from "@/components/ui/Wordmark";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
-import { isWithin, isoAgo } from "@/lib/time";
+import { isWithin } from "@/lib/time";
 import { addStudent, removeLesson, setTeacherName, signOut, startQuickCall } from "./actions";
 
 const QUICK_CALL_MAX_AGE_MS = 12 * 60 * 60 * 1000;
@@ -48,39 +48,38 @@ type Lesson = {
 
 async function Lessons() {
   const supabase = await createClient();
-  const { data: auth } = await supabase.auth.getUser();
+
+  // Each call is a round trip to Supabase or LiveKit (0.3–0.7 s), so they run side by side.
+  const [{ data: auth }, { data }, occupiedOrUnknown] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("lessons")
+      .select("id, title, invite_slug, kind, last_active_at, created_at")
+      .order("title"),
+    occupiedLessons(),
+  ]);
   const teacherName: string = auth.user?.user_metadata.display_name ?? "";
-
-  // Quick calls nobody ended are cleaned up after 12 hours.
-  await supabase
-    .from("lessons")
-    .delete()
-    .eq("kind", "quick")
-    .lt("created_at", isoAgo(QUICK_CALL_MAX_AGE_MS));
-
-  const { data } = await supabase
-    .from("lessons")
-    .select("id, title, invite_slug, kind, last_active_at, created_at")
-    .order("title");
-  let lessons = (data ?? []) as Lesson[];
-  const occupiedOrUnknown = await occupiedLessons(lessons.map((l) => l.id));
   const occupied = occupiedOrUnknown ?? new Set<string>();
 
-  // A quick call nobody is in is over (only when LiveKit could actually be asked).
-  if (occupiedOrUnknown) {
-    const empty = lessons.filter(
-      (l) =>
-        l.kind === "quick" &&
-        !occupied.has(l.id) &&
-        !isWithin(l.created_at, QUICK_CALL_GRACE_MS),
-    );
-    if (empty.length) {
-      await supabase
-        .from("lessons")
-        .delete()
-        .in("id", empty.map((l) => l.id));
-      lessons = lessons.filter((l) => !empty.includes(l));
-    }
+  let lessons = (data ?? []) as Lesson[];
+
+  // Quick calls that are over: older than 12 hours, or nobody is in them (only when LiveKit
+  // could actually be asked, and not in the first minutes while the teacher is joining).
+  // One delete, and only when there is something to delete.
+  const over = lessons.filter(
+    (l) =>
+      l.kind === "quick" &&
+      (!isWithin(l.created_at, QUICK_CALL_MAX_AGE_MS) ||
+        (occupiedOrUnknown !== null &&
+          !occupied.has(l.id) &&
+          !isWithin(l.created_at, QUICK_CALL_GRACE_MS))),
+  );
+  if (over.length) {
+    await supabase
+      .from("lessons")
+      .delete()
+      .in("id", over.map((l) => l.id));
+    lessons = lessons.filter((l) => !over.includes(l));
   }
 
   const quickCalls = lessons.filter((l) => l.kind === "quick");

@@ -91,9 +91,6 @@ export default function StatusBanner({
   ) {
     return <Banner tone="warning">Connection lost. Reconnecting…</Banner>;
   }
-  if (connection === ConnectionState.Connecting) {
-    return <Banner tone="info">Connecting to the lesson…</Banner>;
-  }
   if (problem) {
     return (
       <Banner tone="error" onDismiss={onDismissProblem}>

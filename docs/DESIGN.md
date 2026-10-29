@@ -87,6 +87,10 @@ A yellow marker used the way a teacher marks a text: one stroke at the right mom
 - **TabBar:** segmented tabs in a header. The active tab has an `accent` underline or fill, and the rest are `ink-muted`.
 - **Wordmark:** the dark "T" tile (same as `app/icon.svg`) and "Teaching" underlined by the marker. `underline="draw"` animates the underline, `"still"` shows it drawn, `"none"` leaves it out where the screen has its own marker gesture.
 - **Marker:** a hand-drawn yellow stroke that draws itself (see "The marker" above).
+- **Waiting and arriving** (`components/room/`):
+  - `LoadingScreen`: "Getting your lesson ready" / "Leaving the lesson" with the looping wavy line. It covers the room until the first connection is made.
+  - `JoinToast`: "Anna joined" at the top when someone arrives; camera tiles fade in.
+  - `RoomMessage` with `tick`: "See you next time!" when the call has ended.
 - **Banner** (`components/room/StatusBanner.tsx`): info on `surface-2`, warning in amber tones, error in danger tones. Can be dismissed when the user can act on it.
 
 ## Lesson layout

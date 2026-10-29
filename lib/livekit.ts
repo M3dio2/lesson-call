@@ -19,12 +19,13 @@ export function roomService() {
 // Lesson ids whose room has someone in it right now. On the dashboard the teacher isn't in
 // any room, so this means "the student is waiting". null = LiveKit couldn't be asked, so
 // callers must not treat rooms as empty.
-export async function occupiedLessons(lessonIds: string[]): Promise<Set<string> | null> {
+// Lists all of the project's active rooms, so it can run alongside the lessons query instead
+// of waiting for its ids; callers only look up their own lessons in the result.
+export async function occupiedLessons(): Promise<Set<string> | null> {
   const client = roomService();
   if (!client) return null;
-  if (lessonIds.length === 0) return new Set();
   try {
-    const rooms = await client.listRooms(lessonIds.map(roomName));
+    const rooms = await client.listRooms();
     return new Set(
       rooms
         .filter((room) => room.numParticipants > 0)
