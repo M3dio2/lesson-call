@@ -28,8 +28,8 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 - [x] Email confirmation link → `/auth/confirm` route; "Check your email" screen; `/link-expired` for bad links
 - [x] "Forgot password" on the login page, with a reset page; friendly error messages (`lib/authErrors.ts`)
 - [x] `proxy.ts`: sign-up and forgot-password for logged-out visitors, reset page needs the link's login
-- [ ] User, in Supabase: Gmail as custom SMTP, sign-ups on with "Confirm email", minimum password 8, email templates, redirect URLs
-- [ ] Test: sign up with a second email, confirm, reset password (live and local)
+- [x] User, in Supabase: Gmail as custom SMTP, sign-ups on with "Confirm email", minimum password 8, email templates, redirect URLs
+- [x] Test: sign up with a second email, confirm, reset password (live and local)
 - [ ] An empty dashboard welcomes a new teacher (see "Arrow doodle" below)
 - [x] Update "Teacher account" in `docs/ARCHITECTURE.md`
 
