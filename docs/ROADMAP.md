@@ -13,8 +13,8 @@ Tick items off as they're done. One milestone per working session. Details of fi
 - F1 One quick call · F2 Big cameras without share · F3 One join per person · F4 Whiteboard fixes · F5 Teacher's name · F6 Icon controls + muting
 - D5a–c "Highlighter" refresh (mock-up: claude.ai/artifact/96VPE4fW6muQeC482KAAjt): TeachingTime name, marker tokens and strokes, loading/join/goodbye moments
 
-# Friends test (by Sun 1 Nov 2026)
-Goal: friends can sign up as teachers and give lessons. Order matters: move Supabase to Europe **before** friends create accounts, and check security **before** opening sign-up.
+# Friends test (date to agree once C1 and L1 show the pace)
+Goal: friends can sign up as teachers and give lessons with their own material. The first plan (by 1 Nov) only had sign-up and audio; after looking at similar products, classrooms, a tabbed call and PDFs come first.
 
 ## S1: Speed (was M10)
 Vercel functions ran in North America while Supabase was in US West, so each page waited on several long round trips. Fix: both in the same region. Testing happens in South America, later users are global, so US East is the middle ground (round trips from Chile: São Paulo ~125 ms, US East ~215 ms, Frankfurt ~300 ms). Video is unaffected (LiveKit picks the nearest edge).
@@ -35,34 +35,63 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 
 ## S3: Security check (before inviting friends)
 - [x] RLS (code): `lessons` is the only table; one policy, `teacher_id = auth.uid()` for read and write, so a teacher can't read, change or hand over another teacher's rows. No files yet (S4).
-- [ ] User: run Supabase's Security Advisor (Database → Advisors) and fix what it lists
+- [x] Supabase Security Advisor: only "leaked password protection is disabled" (HaveIBeenPwned check, Pro plan only). Nothing about tables or RLS.
 - [x] Token route: student tokens only for an existing slug; slugs are 10 random characters from 32 (50 bits, not guessable); 4 h tokens; nobody gets room admin. **Fixed:** quick-call links stop working after 12 h, not only once the dashboard deletes them.
 - [x] Teacher-only messages. Mute: sent by the server, the student ignores copies from participants (already). **Fixed:** "student can edit" was in the Y.Doc, and the teacher always accepts full diffs from the student, so a tampered student client could switch it on. Now it's in the teacher's LiveKit attributes, which only the teacher's token may set (`lib/sync/useStudentCanEdit.ts`); it starts off on every join. **Fixed:** the (!) nudge is only accepted from the teacher.
 - [x] `/api/mute` checks ownership (RLS lookup); Remove/End/Leave are server actions that delete through RLS and only close the room of a row they deleted
 - [x] No secret in `NEXT_PUBLIC_*` or the client bundle (checked the built chunks for secret names and key prefixes)
-- [ ] User, in Supabase: Authentication → Rate Limits: emails per hour down to about 10 (Gmail allows ~500/day; a sign-up bot would burn the account). Minimum password 8 is set (S2). CAPTCHA (Turnstile) later, see below.
+- [x] Supabase rate limit: about 10 emails per hour (Gmail allows ~500/day; a sign-up bot would burn the account). Stronger passwords in P1; CAPTCHA (Turnstile) later, see below.
 - [x] Security headers in `next.config.ts`: no framing (CSP `frame-ancestors` + `X-Frame-Options`), `nosniff`, referrer policy, camera/mic/screen only for the app itself
 - [x] **Fixed:** open redirect in `/auth/confirm`: `next=/\evil.com` passed the "starts with /" check, and browsers read it as another site. Now checked on the parsed URL.
 - [x] Findings written here, plus the "Before going commercial" list below
 
 Accepted for now: a tampered student client can still put content on the board while editing is off (its full-state diff is accepted, so the teacher's refreshed page can recover). The teacher can Clear and remove the student. A strict script CSP is left out (needs a nonce per request, which makes every page dynamic).
 
-## S4: Audio library
-- [ ] Private Supabase Storage bucket `audio`, files under `<teacher_id>/`; RLS so a teacher only reads and writes their own folder; audio types only, about 20 MB per file (free tier: 1 GB total). Migration in `supabase/migrations/`
-- [ ] Upload, list and delete files (dashboard)
-- [ ] Room, teacher only: audio button opens the library; pick a file → play / pause / seek
-- [ ] Playback is published as an extra LiveKit audio track (Web Audio), so the student hears it even while the teacher's mic is muted; files load through short-lived signed URLs
-- [ ] Student sees a small "Audio playing" indicator
+## P1: Stronger passwords
+- [ ] Sign-up and reset page: "Confirm password" field; mismatches are refused before Supabase is asked
+- [ ] Rule: at least 10 characters, letters and digits. One helper in `lib/`, used by both forms, with a live hint under the field
+- [ ] User, in Supabase (Auth → Providers → Email): minimum length 10, "letters and digits"
+- [ ] Update `weak_password` in `lib/authErrors.ts`
+
+## C1: Classroom
+Each student in the list becomes a classroom: the teacher keeps that student's files there and starts lessons from it. Only the teacher uploads; students never log in.
+- [ ] The student card opens `/dashboard/[id]`: name, invite link, **Start lesson**, the files
+- [ ] Private Storage bucket `resources`, files at `<teacher_id>/<lesson_id>/<file>`; table `resources` (lesson, teacher, kind `pdf`/`audio`, name, path, size). RLS on both: the teacher's own only. PDF and audio only, about 20 MB per file (free tier: 1 GB total). Migration `0004_resources.sql`
+- [ ] Upload, list and delete files; removing a student deletes their files
+
+## L1: Tabbed call layout
+- [ ] Desktop: cameras stacked on the left | tabs in the middle | resource drawer on the right (teacher only, student lessons only, folds to an icon strip). Phone: tabs and small cameras, no drawer
+- [ ] Tabs like a browser: **Screen** (while someone shares), **Text**, **Draw**, and one per opened PDF (L2a)
+- [ ] The student follows the teacher's tab. The teacher's current tab, open tabs and "folded" go into the teacher's LiveKit attributes, like "student can edit" (one hook for all teacher settings). The (!) nudge goes away
+- [ ] "Just talk": the teacher folds the tabs away for both; the cameras fill the room. Works in quick calls too (they have no drawer)
+- [ ] Rewrite `docs/DESIGN.md` principles 3–4 and the layout part; update `docs/ARCHITECTURE.md`
+
+## L2a: PDF tabs
+- [ ] Teacher clicks a PDF in the drawer → it opens as a tab for both (`pdfjs-dist`, pages load as you scroll)
+- [ ] Student access without a login: `/api/resource-url` takes the invite slug and a file id, checks that the file belongs to that lesson, and returns a signed URL valid for a few minutes
+- [ ] Page and scroll position follow the teacher
+
+## A1: Audio (replaces the old audio-library milestone)
+- [ ] Audio files from the drawer: play / pause / seek; no tab
+- [ ] Progress bar above the tabs for both (start time and length in the teacher's attributes, so the student's bar runs on its own)
+- [ ] Played as an extra LiveKit audio track (Web Audio), so the student hears it while the teacher's mic is muted
+
+## L2b: Write and draw on PDFs
+- [ ] Per-page layer: pen, highlighter, text box, eraser. Strokes are vectors in the lesson Y.Doc, synced like the board; the student draws only when "student can edit" is on
+- [ ] Teacher: **Save as new PDF** (`pdf-lib` in the browser draws the strokes and text onto the original) → "Name (date).pdf" in the classroom. The original stays as it was
 
 ## S5: UX/UI polish
 - [ ] D5d: one wait, one screen (below)
-- [ ] Walk through every screen with the user (login, sign-up, dashboard, join, room on desktop and phone); list fixes, then do them
-- [ ] D4: real phone test on the live site
+- [ ] Walk through every screen with the user (login, sign-up, dashboard, classroom, join, room on desktop and phone); list fixes, then do them
+- [ ] Real phone test on the live site
 - [ ] Decide the D5 "Still to decide" items
 
 ## S6: Nicer URL
-- [ ] Optional now (user, in Vercel): rename the project, e.g. `teachingtime.vercel.app`; then update Supabase's Site URL and redirect URLs and the docs
+- [ ] Optional (user, in Vercel): rename the project, e.g. `teachingtime.vercel.app`; then update Supabase's Site URL and redirect URLs and the docs
 - [ ] Later: own domain (see "Before going commercial")
+
+## Friends test
+- [ ] Agree the date; invite friends; collect their feedback here
 
 # Open design work
 
@@ -70,7 +99,7 @@ Accepted for now: a tampered student client can still put content on the board w
 Rule: a wait that takes you into or out of a lesson shows the full loading screen, without breaks. Small actions that keep you on the page (save name, add student) get a pending state on their button.
 - [ ] Dashboard's Suspense fallback ("Loading…") becomes the loading screen, so "Leaving the lesson" flows straight into it until the students are shown (the 15 s auto-refresh doesn't trigger it)
 - [ ] "Start a quick call" switches to "Getting your lesson ready" on click (form pending state) and it stays until connected; no second screen in between
-- [ ] Check that opening a student's card shows the loading screen at once too
+- [ ] Check that "Start lesson" in a classroom shows the loading screen at once too
 - [ ] Buttons for small actions (Save name, Add, Remove/End) show a pending state
 
 ## D5: Still to decide
@@ -78,6 +107,9 @@ Rule: a wait that takes you into or out of a lesson shows the full loading scree
 - [ ] Arrow doodle pointing to "Add a student" on an empty dashboard
 
 # Later
+
+## Quizzes
+- [ ] Simple quizzes made in the classroom and used in a call. Type to decide once the classroom works (multiple choice, fill the gap, match pairs)
 
 ## D6: Scheduling
 - [ ] Plan the next lesson per student (date and time), shown on the student card
@@ -87,6 +119,7 @@ Rule: a wait that takes you into or out of a lesson shows the full loading scree
 - [ ] Own domain (e.g. teachingtime.app)
 - [ ] Privacy policy and terms (GDPR: EU users, video and stored boards)
 - [ ] CAPTCHA on sign-up, login and forgot password (Supabase + Cloudflare Turnstile; needs the token passed from our forms)
+- [ ] Supabase Pro: switch on leaked password protection (Auth → Providers → Email)
 - [ ] Own email sender (Resend, Postmark, …) instead of the teacher's Gmail
 - [ ] Strict CSP for scripts (nonces) if the speed cost is acceptable; recheck LiveKit and Excalidraw
 - [ ] Rate limit the token route (invite slugs can't be guessed, but it costs nothing to limit)

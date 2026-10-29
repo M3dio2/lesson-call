@@ -21,6 +21,7 @@ Read this before any UI work. When a change doesn't fit these rules, discuss it 
 4. **Everyone owns their layout.**
    - Panel sizes are personal and remembered in the browser.
    - Nothing resizes or switches someone else's screen, except the teacher's explicit **(!)** nudge.
+   - Changes in L1 (`docs/ROADMAP.md`): the student's view will follow the teacher's tab, and the nudge goes away.
 5. **Basic and consistent.**
    - One font, one radius scale, one spacing scale.
    - Reuse `components/ui/*` before adding new styles. If something is missing there, add it there.
