@@ -50,7 +50,7 @@ Accepted for now: a tampered student client can still put content on the board w
 ## P1: Stronger passwords
 - [x] Sign-up and reset page: "Confirm password" field; mismatches are refused before Supabase is asked
 - [x] Rule: at least 10 characters, letters and digits (`lib/passwordRules.ts`); both forms use `components/auth/NewPasswordFields.tsx`, with a live hint under the field
-- [ ] User, in Supabase (Auth → Providers → Email): minimum length 10, "letters and digits"
+- [x] User, in Supabase (Auth → Providers → Email): minimum length 10, "letters and digits"
 - [x] Update `weak_password` in `lib/authErrors.ts`
 
 ## C1: Classroom
