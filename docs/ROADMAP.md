@@ -21,7 +21,7 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 - [x] Measure before: one Supabase lookup via the token route 0.4–0.65 s from the dev server (log: "application-code")
 - [x] New Supabase project in US East (`us-east-1`): run `supabase/migrations/` in order, recreate the teacher account (old lessons are not copied)
 - [x] Swap the Supabase keys in `.env.local` and Vercel (the user pastes them); Vercel region `iad1` in `vercel.json`
-- [ ] Measure again (dev and live site)
+- [x] Measure after: the database lookup now adds only ~0.05–0.1 s on the live site (token route with vs without a lookup); the rest is the network from Chile to US East
 
 ## S2: Teacher sign-up (replaces M9)
 - [ ] `/signup` page (name, email, password) with `supabase.auth.signUp`; the name goes into `display_name` metadata

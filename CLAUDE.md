@@ -5,7 +5,7 @@
 1-on-1 video lesson app for an English teacher and one student. Like Google Meet, plus: screen share with both cameras visible, a shared text pad and whiteboard that sync instantly, and a teacher toggle for whether the student may edit them.
 
 ## Current milestone
-Next: **Friends test S1 (speed)**, then S2–S6, by Sun 1 Nov 2026. See `docs/ROADMAP.md`. Update this line when a milestone is finished.
+S1 (speed) done. Next: **Friends test S2 (teacher sign-up)**, then S3–S6, by Sun 1 Nov 2026. See `docs/ROADMAP.md`. Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
