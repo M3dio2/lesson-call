@@ -1,14 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import AuthCard, { textLink } from "@/components/auth/AuthCard";
 import Button from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
-import Panel from "@/components/ui/Panel";
-import Wordmark from "@/components/ui/Wordmark";
+import { authErrorMessage } from "@/lib/authErrors";
 import { createClient } from "@/lib/supabase/client";
 
-// Teacher login. There is no sign-up: the teacher account is created in the Supabase dashboard.
+// Teacher login. New teachers create an account at /signup.
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -21,9 +22,9 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
     const { error } = await createClient().auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (error) {
-      setError(error.message);
+      setLoading(false);
+      setError(authErrorMessage(error));
       return;
     }
     router.push("/dashboard");
@@ -31,12 +32,8 @@ export default function LoginForm() {
   }
 
   return (
-    <Panel className="w-full max-w-sm">
-      <form onSubmit={logIn} className="flex flex-col gap-4 p-6">
-        <div className="flex flex-col gap-3">
-          <Wordmark underline="draw" />
-          <h1 className="text-2xl">Teacher login</h1>
-        </div>
+    <AuthCard title="Teacher login">
+      <form onSubmit={logIn} className="flex flex-col gap-4">
         <Field
           label="Email"
           type="email"
@@ -55,8 +52,21 @@ export default function LoginForm() {
         />
         <Button disabled={loading}>{loading ? "Logging in…" : "Log in"}</Button>
         {error && <p className="text-sm text-danger">{error}</p>}
-        <p className="text-sm text-ink-muted">Students: use the invite link from your teacher.</p>
       </form>
-    </Panel>
+      <div className="flex flex-col gap-1 text-sm text-ink-muted">
+        <p>
+          <Link href="/forgot-password" className={textLink}>
+            Forgot your password?
+          </Link>
+        </p>
+        <p>
+          New here?{" "}
+          <Link href="/signup" className={textLink}>
+            Create a teacher account
+          </Link>
+        </p>
+        <p>Students: use the invite link from your teacher.</p>
+      </div>
+    </AuthCard>
   );
 }

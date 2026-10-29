@@ -1,8 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Pages only for logged-out visitors: login, sign-up, forgot password.
+const loggedOutPages = ["/", "/signup", "/forgot-password"];
+
 // Refreshes the Supabase session cookie, sends logged-out visitors from teacher
-// pages to the login page, and logged-in teachers from the login page to the dashboard.
+// pages to the login page, and logged-in teachers from the login pages to the dashboard.
 // Pages and the token route still check auth themselves.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -29,12 +32,12 @@ export async function proxy(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   const loggedIn = Boolean(data?.claims);
-  const onLoginPage = request.nextUrl.pathname === "/";
+  const onLoggedOutPage = loggedOutPages.includes(request.nextUrl.pathname);
 
-  if (loggedIn && onLoginPage) {
+  if (loggedIn && onLoggedOutPage) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-  if (!loggedIn && !onLoginPage) {
+  if (!loggedIn && !onLoggedOutPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -42,5 +45,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/lesson/:path*"],
+  matcher: ["/", "/signup", "/forgot-password", "/reset-password", "/dashboard/:path*", "/lesson/:path*"],
 };

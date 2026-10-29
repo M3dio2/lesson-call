@@ -24,13 +24,14 @@ Vercel functions ran in North America while Supabase was in US West, so each pag
 - [x] Measure after: the database lookup now adds only ~0.05–0.1 s on the live site (token route with vs without a lookup); the rest is the network from Chile to US East
 
 ## S2: Teacher sign-up (replaces M9)
-- [ ] `/signup` page (name, email, password) with `supabase.auth.signUp`; the name goes into `display_name` metadata
-- [ ] Email confirmation link → `/auth/confirm` route; "Check your email" screen
-- [ ] "Forgot password" on the login page, with a reset page
-- [ ] `proxy.ts` lets `/signup` and `/auth/*` through without login
-- [ ] User enables sign-ups in Supabase and adds the site URL to the redirect URLs
+- [x] `/signup` page (name, email, password) with `supabase.auth.signUp`; the name goes into `display_name` metadata
+- [x] Email confirmation link → `/auth/confirm` route; "Check your email" screen; `/link-expired` for bad links
+- [x] "Forgot password" on the login page, with a reset page; friendly error messages (`lib/authErrors.ts`)
+- [x] `proxy.ts`: sign-up and forgot-password for logged-out visitors, reset page needs the link's login
+- [ ] User, in Supabase: Gmail as custom SMTP, sign-ups on with "Confirm email", minimum password 8, email templates, redirect URLs
+- [ ] Test: sign up with a second email, confirm, reset password (live and local)
 - [ ] An empty dashboard welcomes a new teacher (see "Arrow doodle" below)
-- [ ] Update "Teacher account" in `docs/ARCHITECTURE.md`
+- [x] Update "Teacher account" in `docs/ARCHITECTURE.md`
 
 ## S3: Security check (before inviting friends)
 - [ ] RLS: each teacher sees only their own lessons and files; run Supabase's Security Advisor
