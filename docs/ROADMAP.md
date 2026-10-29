@@ -128,6 +128,13 @@ Rules: one marker gesture per screen; draw once, then rest (only the loading lin
 - [x] Someone joins: their camera fades in, plus a small "Anna joined" toast
 - [x] Call ended / left: marker tick and "See you next time!"
 
+### D5d: One wait, one screen (next session)
+Rule: a wait that takes you into or out of a lesson shows the full loading screen, without breaks. Small actions that keep you on the page (save name, add student) get a pending state on their button.
+- [ ] Dashboard's Suspense fallback ("Loading…") becomes the loading screen, so "Leaving the lesson" flows straight into it until the students are shown (the 15 s auto-refresh doesn't trigger it)
+- [ ] "Start a quick call" switches to "Getting your lesson ready" on click (form pending state) and it stays until connected; no second screen in between
+- [ ] Check that opening a student's card shows the loading screen at once too
+- [ ] Buttons for small actions (Save name, Add, Remove/End) show a pending state
+
 ### Still to decide
 - [ ] Dark ink instead of brown for the main buttons
 - [ ] Arrow doodle pointing to "Add a student" on an empty dashboard
