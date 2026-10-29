@@ -8,7 +8,7 @@
 - Teacher toggles whether the student may edit the text pad and whiteboard.
 
 ## Current milestone
-**D5: Bring it to life ("Highlighter")**, in steps D5a–D5c (D5a done). Fixes F1–F6 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
+**D5: Bring it to life ("Highlighter")**, in steps D5a–D5c (D5a–D5b done). Fixes F1–F6 done. D4 still needs a real phone test. See `docs/ROADMAP.md` (design milestones D1–D4). Update this line when a milestone is finished.
 
 ## Stack
 - Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4. Next 16 differs from older versions, so check `node_modules/next/dist/docs/` before using Next APIs.
@@ -22,6 +22,7 @@
 ## Commands
 - `npm run dev`: dev server at http://localhost:3000
 - `npm run build`: production build. Must pass before every commit.
+  - Stop `npm run dev` first. A build while the dev server runs rewrites `.next`, and the dev server then serves stale CSS (new classes and tokens missing) until it's restarted with `.next/dev` deleted.
 - `npm run lint`: ESLint.
 
 ## Environment

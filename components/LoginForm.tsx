@@ -34,7 +34,7 @@ export default function LoginForm() {
     <Panel className="w-full max-w-sm">
       <form onSubmit={logIn} className="flex flex-col gap-4 p-6">
         <div className="flex flex-col gap-3">
-          <Wordmark draw />
+          <Wordmark underline="draw" />
           <h1 className="text-2xl">Teacher login</h1>
         </div>
         <Field

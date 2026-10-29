@@ -4,6 +4,7 @@ import CopyLinkButton from "@/components/CopyLinkButton";
 import { AutoRefresh, ConfirmSubmit, LocalDate } from "@/components/dashboard/DashboardBits";
 import Button, { buttonClass } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
+import Marker from "@/components/ui/Marker";
 import Wordmark from "@/components/ui/Wordmark";
 import { occupiedLessons } from "@/lib/livekit";
 import { createClient } from "@/lib/supabase/server";
@@ -19,7 +20,7 @@ export default function DashboardPage() {
     <main className="flex min-h-dvh flex-1 flex-col gap-8 p-4 sm:p-8">
       {/* Full width, so "Log out" sits in the top-right corner; the content below is centred. */}
       <header className="flex items-center justify-between">
-        <Wordmark draw />
+        <Wordmark underline="draw" />
         <form action={signOut}>
           <Button variant="ghost" size="sm">
             Log out
@@ -193,7 +194,8 @@ function NameForm({ name }: { name: string }) {
 // The whole card opens the room; the buttons sit above the card link.
 function StudentCard({ student, waiting }: { student: Lesson; waiting: boolean }) {
   return (
-    <li className="relative flex flex-wrap items-center gap-3 rounded-panel border border-line bg-surface p-4 transition-colors hover:border-accent">
+    // Hover: the card lifts onto a yellow marker shadow (docs/DESIGN.md).
+    <li className="relative flex flex-wrap items-center gap-3 rounded-panel border border-line bg-surface p-4 transition hover:border-ink hover:shadow-[3px_3px_0_var(--color-marker)] motion-safe:hover:-translate-y-0.5">
       <Link
         href={`/lesson/${student.id}`}
         aria-label={`Open ${student.title}'s room`}
@@ -203,8 +205,15 @@ function StudentCard({ student, waiting }: { student: Lesson; waiting: boolean }
         <p className="flex items-center gap-2 font-semibold">
           {student.title}
           {waiting && (
-            <span className="flex items-center gap-1 rounded-full bg-ok/10 px-2 py-0.5 text-xs font-medium text-ok">
-              <span className="h-1.5 w-1.5 rounded-full bg-ok" /> Waiting
+            // Circled by the marker when the student arrives (it mounts then; refreshes keep it).
+            <span className="relative rounded-full bg-marker-soft px-2 py-0.5 text-xs font-medium text-marker-ink">
+              Waiting
+              <Marker
+                shape="circle"
+                width={2.2}
+                delay={0.4}
+                className="absolute -top-1.5 -left-2 h-[calc(100%+0.75rem)] w-[calc(100%+1rem)]"
+              />
             </span>
           )}
         </p>

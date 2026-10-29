@@ -85,7 +85,7 @@ A yellow marker used the way a teacher marks a text: one stroke at the right mom
 - **Field:** a labelled input on `surface`, with a line border and accent focus ring.
 - **Panel:** `surface` with a `line` border, `rounded-panel` corners and an optional header bar on `surface-2`.
 - **TabBar:** segmented tabs in a header. The active tab has an `accent` underline or fill, and the rest are `ink-muted`.
-- **Wordmark:** the dark "T" tile (same as `app/icon.svg`) and "Teaching" underlined by the marker. `draw` animates the underline; leave it off where the screen already has its own marker gesture.
+- **Wordmark:** the dark "T" tile (same as `app/icon.svg`) and "Teaching" underlined by the marker. `underline="draw"` animates the underline, `"still"` shows it drawn, `"none"` leaves it out where the screen has its own marker gesture.
 - **Marker:** a hand-drawn yellow stroke that draws itself (see "The marker" above).
 - **Banner** (`components/room/StatusBanner.tsx`): info on `surface-2`, warning in amber tones, error in danger tones. Can be dismissed when the user can act on it.
 

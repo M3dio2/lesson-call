@@ -1,14 +1,14 @@
 import Marker from "./Marker";
 
 // The TeachingTime name: a dark "T" tile with a yellow letter (same as app/icon.svg), and
-// "Teaching" underlined by the marker. `draw` lets the underline draw itself; leave it off
-// where the page already has its own marker gesture (one per screen).
+// "Teaching" underlined by the marker. `underline`: "draw" animates it, "still" shows it drawn,
+// "none" leaves it out where the screen has its own marker gesture (one per screen).
 export default function Wordmark({
   size = "md",
-  draw = false,
+  underline = "still",
 }: {
   size?: "sm" | "md" | "lg";
-  draw?: boolean;
+  underline?: "draw" | "still" | "none";
 }) {
   const sizes = {
     sm: { text: "text-base", tile: "h-5 w-5 text-xs rounded-[5px]" },
@@ -28,12 +28,14 @@ export default function Wordmark({
             above the panel background. */}
         <span className="relative isolate inline-block">
           Teaching
-          <Marker
-            shape="underline"
-            play={draw ? "draw" : "none"}
-            delay={0.2}
-            className="absolute -bottom-[0.2em] -left-[3%] -z-10 h-[0.3em] w-[106%]"
-          />
+          {underline !== "none" && (
+            <Marker
+              shape="underline"
+              play={underline === "draw" ? "draw" : "none"}
+              delay={0.2}
+              className="absolute -bottom-[0.2em] -left-[3%] -z-10 h-[0.3em] w-[106%]"
+            />
+          )}
         </span>
         Time
       </span>

@@ -118,10 +118,10 @@ Rules: one marker gesture per screen; draw once, then rest (only the loading lin
 - [x] `docs/DESIGN.md` updated with the marker rules and tokens
 
 ### D5b: Marker moments
-- [ ] Dashboard: marker circle around "Waiting"; cards lift onto a yellow hover shadow
-- [ ] Board: active Text/Draw tab gets a marker underline instead of a filled box
-- [ ] (!) nudge: the marker circles the tab on the student's board
-- [ ] Student join page: "Join your lesson" with "lesson" underlined
+- [x] Dashboard: marker circle around "Waiting"; cards lift onto a yellow hover shadow
+- [x] Board: active Text/Draw tab gets a marker underline instead of a filled box
+- [x] (!) nudge: the marker circles the tab on the student's board
+- [x] Student join page: "Join your lesson" with "lesson" underlined
 
 ### D5c: Entering, joining and leaving
 - [ ] Loading screen "Getting your lesson ready" with the looping marker line (entering); "Leaving the lesson" (leaving)

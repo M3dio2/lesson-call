@@ -281,13 +281,13 @@ function BoardPanel({ doc, control, role }: { doc: Y.Doc; control: Y.Map<unknown
   const isTeacher = role === "teacher";
   const canEdit = isTeacher || studentCanEdit;
 
-  // Student: the teacher pressed (!) — show that tab and mark it briefly.
+  // Student: the teacher pressed (!) — show that tab and circle it with the marker for a moment.
   const sendNudge = useNudge(isBoardTab, (nudged) => {
     if (isTeacher) return;
     setTab(nudged);
     setHighlight(nudged);
     if (highlightTimer.current) clearTimeout(highlightTimer.current);
-    highlightTimer.current = setTimeout(() => setHighlight(null), 1500);
+    highlightTimer.current = setTimeout(() => setHighlight(null), 2500);
   });
 
   return (
